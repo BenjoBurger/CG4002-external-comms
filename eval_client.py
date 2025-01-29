@@ -5,11 +5,11 @@ from Crypto.Cipher import AES
 import Crypto.Random as Random
 import base64
 
-secret_key = b'1111111111111111'
+SECRET_KEY = b'1111111111111111'
 
 class EvaluationClient:
     def __init__(self, server_name, server_port):
-        self.BLOCK_SIZE = 128
+        self.BLOCK_SIZE = 16
         self.FORMAT = "utf-8"
         self.DISCONNECT_MESSAGE = "!dc"
         self.SERVER = server_name
@@ -19,16 +19,15 @@ class EvaluationClient:
         self.client.connect(self.ADDR)
     
     def send(self, message):
-        msg_length = len(message)
-        msg_length = str(msg_length)
-        encoded_data = f"{msg_length}_{message}".encode(self.FORMAT)
-        padded_data = pad(encoded_data, self.BLOCK_SIZE)
-        print(f"Padding {padded_data}")
-        iv = Random.new().read(AES.block_size)
-        cipher = AES.new(secret_key,AES.MODE_CBC,iv)
+        encoded_msg = message.encode(self.FORMAT) # Encode message
+        padded_data = pad(encoded_msg, self.BLOCK_SIZE) # Pad message
+        iv = Random.new().read(AES.block_size) 
+        cipher = AES.new(SECRET_KEY, AES.MODE_CBC, iv)
         encoded = base64.b64encode(iv + cipher.encrypt(padded_data))
-        print(f"Sending {encoded}")
-        self.client.send(encoded)
+        msg_length = str(len(encoded)) + "_"
+        packet = msg_length.encode(self.FORMAT) + encoded
+        print(f"Sending {packet}")
+        self.client.send(packet)
 
 def main():
     if len(sys.argv) < 3:
@@ -42,9 +41,10 @@ def main():
 
     while True:
         message = input("> ")
-        client.send(message)
         if message == client.DISCONNECT_MESSAGE:
             client.client.close()
+            break
+        client.send(message)
 
 if __name__ == "__main__":
     main()
