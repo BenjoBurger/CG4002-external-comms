@@ -32,7 +32,7 @@ class EvaluationClient:
         print(f"Sending {packet}")
         self.client.send(packet)
 
-    def recv_server(self):
+    def recv_message(self):
         """
         This function receives a message from the Ultra96 and decrypts it
         """
