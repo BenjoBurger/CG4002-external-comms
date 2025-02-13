@@ -1,9 +1,9 @@
-from Player import Player
+from utilities.Player import Player
 
 class ClientGameState:
     def __init__(self):
-        self.player1 = Player("Player 1")
-        self.player2 = Player("Player 2")
+        self.player1 = Player("p1")
+        self.player2 = Player("p2")
     
     def __str__(self):
         return str(self.get_dict())

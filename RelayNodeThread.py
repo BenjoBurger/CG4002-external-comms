@@ -1,36 +1,17 @@
+import threading
 import asyncio
-from socket import socket, AF_INET, SOCK_STREAM
-from Crypto.Util.Padding import pad, unpad
-from Crypto.Cipher import AES
-import Crypto.Random as Random
-import base64
-import json
 
-SECRET_KEY = b'1111111111111111'
-
-class EvaluationClient:
-    def __init__(self, server_name, server_port):
-        self.BLOCK_SIZE = 16
-        self.FORMAT = "utf-8"
-        self.DISCONNECT_MESSAGE = "!dc"
-        self.SERVER = server_name
-        self.PORT = server_port
-        self.ADDR = (self.SERVER, self.PORT)
-        self.client = socket(AF_INET, SOCK_STREAM)
-        self.client.connect(self.ADDR)
-        self.send_server("hello".encode(self.FORMAT))
-        print("Connected to server")
-    
-    def send_server(self, message):
-        print(f"Encoding {message}")
-        padded_data = pad(message, self.BLOCK_SIZE)
-        iv = Random.new().read(AES.block_size) 
-        cipher = AES.new(SECRET_KEY, AES.MODE_CBC, iv)
-        encoded = base64.b64encode(iv + cipher.encrypt(padded_data))
-        msg_length = str(len(encoded)) + "_"
-        packet = msg_length.encode(self.FORMAT) + encoded
-        print(f"Sending {packet}")
-        self.client.send(packet)
+class RelayNodeThread:
+    def __init__(self, threadId, name):
+        threading.Thread.__init__(self)
+        self.threadId = threadId
+        self.name = name
+        
+    def run(self, queue, threadLock):
+        print("Starting: " + self.name + "\n")
+        self.recv_message()
+        queue.put()
+        print("Exiting: " + self.name + "\n")
 
     def recv_message(self):
         """

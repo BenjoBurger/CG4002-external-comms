@@ -1,6 +1,6 @@
 class Player:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, id):
+        self.id = id
 
         self.max_bombs          = 2
         self.max_shields        = 3
