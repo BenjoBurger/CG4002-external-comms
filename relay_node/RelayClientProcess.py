@@ -1,16 +1,34 @@
 from RelayClient import RelayClient 
 from queue import Queue
 import json
+from random import Random
 
-def relay_client_process():
+def relay_client_process(num_players=1):
     relay_client = RelayClient("localhost", 8000)
+    if num_players == 1:
+        players_list = ["p1"]
+    else:
+        players_list = ["p1", "p2"]
     try:
         while True:
-            for player in ["p1", "p2"]:
+            for player in players_list:
                 user_action = input("> ")
                 data = {
                     "player_id": player,
-                    "action": user_action
+                    "action": user_action,
+                    "ir_data": Random().randint(0, 1),
+                    "gyro_data": 
+                    {
+                        "x": Random().randint(0, 100),
+                        "y": Random().randint(0, 100),
+                        "z": Random().randint(0, 100),
+                    },
+                    "accel_data": 
+                    {
+                        "x": Random().randint(0, 100),
+                        "y": Random().randint(0, 100),
+                        "z": Random().randint(0, 100),
+                    },
                 }
                 if user_action == "logout":
                     break
@@ -22,4 +40,5 @@ def relay_client_process():
         raise e
 
 if __name__ == "__main__":
-    relay_client_process()
+    num_players = int(input("Enter the number of players: "))
+    relay_client_process(num_players)

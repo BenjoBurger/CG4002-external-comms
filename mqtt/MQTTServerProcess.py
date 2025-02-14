@@ -1,5 +1,10 @@
 from mqtt.MQTTServer import MQTTServer
+from multiprocessing import Queue
 
-def mqtt_server_process(visualiser_to_eval_queue):
-    mqtt_server = MQTTServer()
+def mqtt_server_process(action_queue):
+    mqtt_server = MQTTServer(action_queue)
     mqtt_server.run()
+
+if __name__ == "__main__":
+    queue = Queue()
+    mqtt_server_process(queue)
