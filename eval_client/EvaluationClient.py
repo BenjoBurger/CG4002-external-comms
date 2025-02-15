@@ -5,6 +5,7 @@ from Crypto.Cipher import AES
 import Crypto.Random as Random
 import base64
 import json
+from utilities.Colour import Colour
 
 SECRET_KEY = b'1111111111111111'
 
@@ -17,19 +18,18 @@ class EvaluationClient:
         self.ADDR = (self.SERVER, self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
-        self.send_hello()
-        print("Evaluation Client connected")
+        self.send_server("hello")
+        print(f"{Colour.ORANGE}Evaluation Client connected{Colour.RESET}", end="\n\n")
     
-    def send_hello(self):
-        print("Sending hello")
-        message = "hello".encode(self.FORMAT)
-        padded_data = pad(message, self.BLOCK_SIZE)
+    def send_server(self, message):
+        print(f"{Colour.ORANGE}Sending {message}{Colour.RESET}", end="\n\n")
+        encoded_message = message.encode(self.FORMAT)
+        padded_data = pad(encoded_message, self.BLOCK_SIZE)
         iv = Random.new().read(AES.block_size) 
         cipher = AES.new(SECRET_KEY, AES.MODE_CBC, iv)
         encoded = base64.b64encode(iv + cipher.encrypt(padded_data))
         msg_length = str(len(encoded)) + "_"
         packet = msg_length.encode(self.FORMAT) + encoded
-        print(f"Sending {packet}")
         self.client.send(packet)
 
     def recv_message(self):
@@ -57,11 +57,11 @@ class EvaluationClient:
                 if len(data) == 0:
                     break
                 msg = data.decode(self.FORMAT)
-                print(f"Received {msg}")
+                print(f"{Colour.ORANGE}Received {msg}{Colour.RESET}", end="\n\n")
                 break
         except ConnectionResetError:
-            print('recv_text: Connection Reset')
+            print(f"{Colour.RED}recv_text: Connection Reset{Colour.RESET}", end="\n\n")
         except asyncio.TimeoutError:
-            print('recv_text: Timeout while receiving data')
+            print(f"{Colour.RED}recv_text: Timeout while receiving data{Colour.RESET}", end="\n\n")
 
         return msg

@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import json
 import asyncio
+from utilities.Colour import Colour
 
 class RelayServer:
     def __init__(self, server_port):
@@ -11,8 +12,8 @@ class RelayServer:
         self.client.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.client.bind(self.ADDR)
         self.client.listen()
-        print("Relay Server Connected")
-    
+        print(f"{Colour.CYAN}Relay Server Connected{Colour.RESET}", end="\n\n")
+
     def send_message(self, message, socket):
         socket.send(f"{len(message)}_{message}".encode(self.FORMAT))
     

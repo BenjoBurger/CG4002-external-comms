@@ -2,6 +2,7 @@ import sys
 import traceback
 import paho.mqtt.client as paho
 import json
+from utilities.Colour import Colour
 
 class MQTTServer:
     def __init__(self, action_queue):
@@ -10,20 +11,19 @@ class MQTTServer:
         self.client.on_message = self.message_handling
 
         if self.client.connect("localhost", 1883) != 0:
-            print("Could not connect to MQTT broker!")
+            print(f"{Colour.RED}Could not connect to MQTT broker!{Colour.RESET}", end="\n\n")
             sys.exit(1)
-        
+        print(f"{Colour.PINK}Server Connected to MQTT broker{Colour.RESET}", end="\n\n")
         self.client.subscribe("cg4002_b15", 0)
         
     def run(self):
         try:
-            print("Press CTRL+C to exit...")
             self.client.loop_forever()
         except Exception:
-            print("Caught an Exception:")
+            print(f"{Colour.RED}Caught an Exception:{Colour.RESET}")
             traceback.print_exc()
         finally:
-            print("Disconnecting from the MQTT broker")
+            print(f"{Colour.PINK}Disconnecting from the MQTT broker{Colour.RESET}", end="\n\n")
             self.client.disconnect()
         
     def message_handling(self, client, userdata, message):
@@ -36,4 +36,4 @@ class MQTTServer:
                 "see_opponent": msg["seeOpponent"]
             }
             self.queue.put(data)
-            print(f"MQTT Server Received message '{topic}: {msg}'")
+            print(f"{Colour.PINK}MQTT Server Received message '{topic}: {msg}'{Colour.RESET}", end="\n\n")

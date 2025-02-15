@@ -2,8 +2,8 @@ from utilities.Player import Player
 
 class ClientGameState:
     def __init__(self):
-        self.player1 = Player("p1")
-        self.player2 = Player("p2")
+        self.player1 = Player(1)
+        self.player2 = Player(2)
     
     def __str__(self):
         return str(self.get_dict())
@@ -15,4 +15,3 @@ class ClientGameState:
     def update_game_state(self, data):
         self.player1.set_dict(data['p1'])
         self.player2.set_dict(data['p2'])
-
