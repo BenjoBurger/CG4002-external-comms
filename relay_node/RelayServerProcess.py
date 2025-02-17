@@ -32,9 +32,6 @@ def handler(relay_to_ai_queue, eval_to_relay_queue, relay_node_server, conn_sock
                 except Exception as e:
                     print(f"{Colour.RED} Error in relay server handler: {e} {Colour.RESET}", end="\n\n")
                     break
-        except Exception as e:
-            print(f"{Colour.RED}Error in relay server handler: {e}{Colour.RESET}", end="\n\n")
-            raise e
         finally:
             conn_socket.close()
             print(f"{Colour.CYAN}Connection closed: {client_addr}{Colour.RESET}", end="\n\n")

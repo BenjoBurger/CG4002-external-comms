@@ -48,4 +48,8 @@ class RelayClient:
         except asyncio.TimeoutError:
             print(f'{Colour.RED}recv_text: Timeout while receiving data{Colour.RESET}', end="\n\n")
 
-        return msg    
+        return msg
+    
+    def close(self):
+        self.client.close()
+        print(f"{Colour.CYAN}Relay Client Closed{Colour.RESET}", end="\n\n")

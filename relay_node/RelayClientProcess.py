@@ -40,11 +40,12 @@ def relay_client_process(num_players=1, server_ip="localhost"):
                         "z": Random().randint(0, 100),
                     },
                 }
-                if user_action == "logout":
-                    break
                 relay_client.send_message(json.dumps(data))
                 recv_data = relay_client.recv_message()
                 print(f"{Colour.CYAN}data received: {recv_data}{Colour.RESET}", end="\n\n")
+                if user_action == Action.logout:
+                    relay_client.close()
+                    return
     except Exception as e:
         print(f"{Colour.RED}Error in relay_client_process: {e}{Colour.RESET}", end="\n\n")
         raise e
