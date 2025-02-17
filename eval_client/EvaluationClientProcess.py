@@ -14,6 +14,7 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
         try:
             while True:
                 if not action_queue.empty():
+                    # process new action
                     message = action_queue.get()
                     print(f"{Colour.ORANGE}Eval Client received message: {message}{Colour.RESET}", end="\n\n")
                     relay_to_eval(message, eval_client, client_game_state,)
@@ -35,8 +36,8 @@ def relay_to_eval(ai_packet, eval_client, client_game_state):
         eval_client.client.close()
         return
     print(f"{Colour.ORANGE}Sending data to Eval Server{Colour.RESET}", end="\n\n")
-    eval_client.send_server(create_message(ai_packet["action"], player1, player2))
-    data = eval_client.recv_message()
+    eval_client.send_server(create_message(ai_packet["action"], player1, player2)) # send game state to eval server
+    data = eval_client.recv_message() # receive game state from eval server
     print(f"{Colour.ORANGE}Data received from Eval Server: {data}{Colour.RESET}", end="\n\n")
     client_game_state.update_game_state(json.loads(data))
 
@@ -47,30 +48,22 @@ def do_action(ai_packet, player1, player2):
     print(f"{Colour.ORANGE}Performing action: {ai_action}{Colour.RESET}", end="\n\n")
     if ai_action == "shield":
         shield_command(player1)
-        # action = "shield"
     elif ai_action == "gun":
         gun_command(player1, player2, see_opponent)
-        # action = "gun"
     elif ai_action == "reload":
         reload_command(player1)
-        # action = "reload"
     elif ai_action == "bomb":
         bomb_command(player1, player2, see_opponent)
-        # action = "bomb"
     elif ai_action == "badminton":
         badminton_command(player1, player2, see_opponent)
-        # action = "badminton"
     elif ai_action == "boxing":
         boxing_command(player1, player2, see_opponent)
-        # action = "boxing"
     elif ai_action == "fencing":
         fencing_command(player1, player2, see_opponent)
-        # action = "fencing"
     elif ai_action == "golf":
         golf_command(player1, player2, see_opponent)
-        # action = "golf"
     else:
-        success = False
+        success = False # logout action
     return success
 
 def create_message(action, curr_player, opponent):

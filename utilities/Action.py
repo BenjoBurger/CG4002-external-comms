@@ -10,6 +10,10 @@ class Action:
     boxing      = "boxing"
     logout      = "logout"
 
+    @classmethod
+    def values(cls):
+        return [cls.none, cls.shoot, cls.shield, cls.bomb, cls.reload, cls.badminton, cls.golf, cls.fencing, cls.boxing, cls.logout]
+    
 def shield_command(curr_player):
     curr_player.shield()
 

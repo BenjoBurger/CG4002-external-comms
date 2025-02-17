@@ -1,5 +1,6 @@
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
+from socket import socket, AF_INET, SOCK_STREAM
 import asyncio
+from utilities.Colour import Colour
 
 class RelayClient:
     def __init__(self, server_name, server_port):
@@ -9,7 +10,7 @@ class RelayClient:
         self.ADDR = (self.SERVER, self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
-        print("Relay Client Connected")
+        print(f"{Colour.CYAN}Relay Client Connected{Colour.RESET}", end="\n\n")
 
     def send_message(self, message):
         self.client.send(f"{len(message)}_{message}".encode(self.FORMAT))
@@ -17,7 +18,8 @@ class RelayClient:
     def recv_message(self):
         msg = ""
         try:
-            while True:               
+            while True:
+                # get length of message            
                 data = b''
                 while not data.endswith(b'_'):
                     _d = self.client.recv(1)
@@ -30,7 +32,7 @@ class RelayClient:
                 data = data.decode(self.FORMAT)
                 length = int(data[:-1])
                 data = b''
-                print(f"length: {length}")
+                # get message
                 while len(data) < length:
                     _d = self.client.recv(length - len(data))
                     if not _d:
@@ -42,8 +44,8 @@ class RelayClient:
                 msg = data.decode(self.FORMAT)
                 break
         except ConnectionResetError:
-            print('recv_text: Connection Reset')
+            print(f'{Colour.RED}recv_text: Connection Reset{Colour.RESET}', end="\n\n")
         except asyncio.TimeoutError:
-            print('recv_text: Timeout while receiving data')
+            print(f'{Colour.RED}recv_text: Timeout while receiving data{Colour.RESET}', end="\n\n")
 
         return msg    

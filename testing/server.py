@@ -1,23 +1,51 @@
-# local_bidirectional_server.py
-import socket
+# python 3.11
 
-HOST = "localhost"  # Listen on your local machine
-PORT = 8080         # Port to listen on (forwarded from remote machine)
+import random
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-    server_socket.bind((HOST, PORT))
-    server_socket.listen()
-    print(f"Local server listening on {HOST}:{PORT}...")
+from paho.mqtt import client as mqtt_client
+import json
 
-    while True:
-        conn, addr = server_socket.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            data = conn.recv(1024)
-            if data:
-                print("Received from remote:", data.decode())
+broker = 'broker.emqx.io'
+port = 1883
+topic = "cg4002_b15"
+# Generate a Client ID with the subscribe prefix.
+client_id = f'subscribe-{random.randint(0, 100)}'
+# username = 'emqx'
+# password = 'public'
 
-                # Send a response back to the remote client
-                response = "Hello from the local server!"
-                conn.sendall(response.encode())
-                print("Sent response:", response)
+
+def connect_mqtt() -> mqtt_client:
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print("Failed to connect, return code %d\n", rc)
+
+    client = mqtt_client.Client(client_id)
+    # client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    client.connect(broker, port)
+    return client
+
+
+def subscribe(client: mqtt_client):
+    def on_message(client, userdata, message):
+        print(f"Received message")
+        msg = json.loads(message.payload.decode())
+        topic = message.topic
+        if msg["topic"] == "visualiser/mqtt_server":
+            print(f"Received `{msg}` from `{topic}` topic")
+
+
+    client.subscribe(topic)
+    client.on_message = on_message
+
+
+def run():
+    client = connect_mqtt()
+    subscribe(client)
+    client.loop_forever()
+
+
+if __name__ == '__main__':
+    run()

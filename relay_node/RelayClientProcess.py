@@ -5,9 +5,10 @@ from random import Random
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from relay_node.RelayClient import RelayClient 
 from utilities.Colour import Colour
+from utilities.Action import Action
 
-def relay_client_process(num_players=1):
-    relay_client = RelayClient("localhost", 8000)
+def relay_client_process(num_players=1, server_ip="localhost"):
+    relay_client = RelayClient(server_ip, 8000)
     if num_players == 1:
         players_list = [1]
     else:
@@ -15,11 +16,17 @@ def relay_client_process(num_players=1):
     try:
         while True:
             for player in players_list:
-                user_action = input("> ")
+                while True:
+                    user_action = input("> ")
+                    if user_action in Action.values(): # check if the action is valid
+                        break
+                    print(f"{Colour.RED}Invalid action{Colour.RESET}")
+                    
+                # create dummy data
                 data = {
                     "player_id": player,
                     "action": user_action,
-                    "ir_data": Random().randint(0, 1),
+                    "ir_data": 1,
                     "gyro_data": 
                     {
                         "x": Random().randint(0, 100),
@@ -44,4 +51,5 @@ def relay_client_process(num_players=1):
 
 if __name__ == "__main__":
     num_players = int(input("Enter the number of players: "))
-    relay_client_process(num_players)
+    server_ip = input("Enter the server ip: ")
+    relay_client_process(num_players, server_ip)

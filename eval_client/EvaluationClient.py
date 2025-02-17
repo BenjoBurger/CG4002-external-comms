@@ -57,7 +57,6 @@ class EvaluationClient:
                 if len(data) == 0:
                     break
                 msg = data.decode(self.FORMAT)
-                print(f"{Colour.ORANGE}Received {msg}{Colour.RESET}", end="\n\n")
                 break
         except ConnectionResetError:
             print(f"{Colour.RED}recv_text: Connection Reset{Colour.RESET}", end="\n\n")
