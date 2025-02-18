@@ -1,6 +1,9 @@
 from relay_node.RelayServer import RelayServer
 import json
 from utilities.Colour import Colour
+import logging
+
+logging.basicConfig(filename="relayserver.log", level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue):
     try:
@@ -22,12 +25,14 @@ def handler(relay_to_ai_queue, eval_to_relay_queue, relay_node_server, conn_sock
                 data = relay_node_server.recv_message(conn_socket) # receive message from relay client
                 message = json.loads(data)
                 print(f"{Colour.CYAN}Received message from Relay Client: {message}{Colour.RESET}", end="\n\n")
+                logging.info(f"Received message from Relay Client: {message}")
                 relay_to_ai_queue.put(message) # send message to ai client
                 # relay_node_server.send_message(json.dumps(message), conn_socket)
                 try:
                     game_state = eval_to_relay_queue.get() # receive game state from eval client
                     if game_state is not None:
                         print(f"{Colour.CYAN}Sending game state to Relay Client: {game_state}{Colour.RESET}", end="\n\n")
+                        logging.info(f"Sending game state to Relay Client: {game_state}")
                         relay_node_server.send_message(json.dumps(game_state), conn_socket) # send game state to relay client
                 except Exception as e:
                     print(f"{Colour.RED} Error in relay server handler: {e} {Colour.RESET}", end="\n\n")

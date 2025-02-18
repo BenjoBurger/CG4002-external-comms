@@ -20,21 +20,32 @@ class MQTTClient:
         
         self.client.subscribe(MQTT_TOPIC, 0)
 
-    def run(self, ai_message):
+    def send_action(self, ai_message):
         try:
             message = {
                 "topic": "client/visualiser",
                 "message": ai_message["action"],
             }
-            json_message = json.dumps(message)
-            print(f"{Colour.PINK}Sending Message to Visualiser: {json_message}{Colour.RESET}", end="\n\n")
-            self.send_mqtt_message(json_message)
+            self.send_mqtt_message(message)
+        except Exception:
+            print(f"{Colour.RED}Caught an Exception:{Colour.RESET}")
+            traceback.print_exc()
+    
+    def send_game_state(self, game_state):
+        try:
+            message = {
+                "topic": "client/visualiser",
+                "message": game_state,
+            }
+            self.send_mqtt_message(message)
         except Exception:
             print(f"{Colour.RED}Caught an Exception:{Colour.RESET}")
             traceback.print_exc()
 
-    def send_mqtt_message(self, user_input):
-        status = self.client.publish(MQTT_TOPIC, user_input)
+    def send_mqtt_message(self, message):
+        json_message = json.dumps(message)
+        print(f"{Colour.PINK}Sending Message to Visualiser: {json_message}{Colour.RESET}", end="\n\n")
+        status = self.client.publish(MQTT_TOPIC, json_message)
         # if status == 0:
         #     print(f"{Colour.PINK}Sending Message to visualiser `{user_input}` to topic `{MQTT_TOPIC}`{Colour.RESET}", end="\n\n")
         # else:

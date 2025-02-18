@@ -1,6 +1,6 @@
 from multiprocessing import Process, Queue
 from eval_client.EvaluationClient import EvaluationClient
-from eval_client.ClientGameState import ClientGameState
+from utilities.ClientGameState import ClientGameState
 from eval_client.EvaluationClientProcess import relay_to_eval
 
 def main(server_name, server_port):

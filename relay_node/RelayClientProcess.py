@@ -6,6 +6,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from relay_node.RelayClient import RelayClient 
 from utilities.Colour import Colour
 from utilities.Action import Action
+import logging
+
+logging.basicConfig(filename="relayclient.log", level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 def relay_client_process(num_players=1, server_ip="localhost"):
     relay_client = RelayClient(server_ip, 8000)
@@ -42,15 +45,35 @@ def relay_client_process(num_players=1, server_ip="localhost"):
                 }
                 relay_client.send_message(json.dumps(data))
                 recv_data = relay_client.recv_message()
-                print(f"{Colour.CYAN}data received: {recv_data}{Colour.RESET}", end="\n\n")
+                print(f"{Colour.CYAN}Data received: {recv_data}{Colour.RESET}", end="\n\n")
+                logging.info(f"Data received: {recv_data}")
                 if user_action == Action.logout:
                     relay_client.close()
                     return
     except Exception as e:
         print(f"{Colour.RED}Error in relay_client_process: {e}{Colour.RESET}", end="\n\n")
+        logging.info(f"Error in relay_client_process: {e}")
         raise e
 
 if __name__ == "__main__":
     num_players = int(input("Enter the number of players: "))
     server_ip = input("Enter the server ip: ")
     relay_client_process(num_players, server_ip)
+
+dummy_packet = {
+    "player_id": 1,
+    "action": Random().choice(list(Action.values())),
+    "ir_data": 1,
+    "gyro_data": 
+    {
+        "x": Random().randint(0, 100),
+        "y": Random().randint(0, 100),
+        "z": Random().randint(0, 100),
+    },
+    "accel_data": 
+    {
+        "x": Random().randint(0, 100),
+        "y": Random().randint(0, 100),
+        "z": Random().randint(0, 100),
+    },
+}

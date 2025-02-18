@@ -1,8 +1,11 @@
 from eval_client.EvaluationClient import EvaluationClient
 import json
 from utilities.Action import shield_command, gun_command, reload_command, bomb_command, badminton_command, boxing_command, fencing_command, golf_command
-from eval_client.ClientGameState import ClientGameState
+from utilities.ClientGameState import ClientGameState
 from utilities.Colour import Colour
+import logging
+
+logging.basicConfig(filename="evalclient.log", level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 def eval_client_process(server_name, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue):
     eval_client = EvaluationClient(server_name, server_port)
@@ -36,9 +39,12 @@ def relay_to_eval(ai_packet, eval_client, client_game_state):
         eval_client.client.close()
         return
     print(f"{Colour.ORANGE}Sending data to Eval Server{Colour.RESET}", end="\n\n")
-    eval_client.send_server(create_message(ai_packet["action"], player1, player2)) # send game state to eval server
+    message = create_message(ai_packet["action"], player1, player2)
+    logging.info(f"Message to Eval Server: {message}")
+    eval_client.send_server(message) # send game state to eval server
     data = eval_client.recv_message() # receive game state from eval server
     print(f"{Colour.ORANGE}Data received from Eval Server: {data}{Colour.RESET}", end="\n\n")
+    logging.info(f"Data received from Eval Server: {data}")
     client_game_state.update_game_state(json.loads(data))
 
 def do_action(ai_packet, player1, player2):
