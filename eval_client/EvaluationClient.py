@@ -13,12 +13,14 @@ class EvaluationClient:
     def __init__(self, server_name, server_port):
         self.BLOCK_SIZE = 16
         self.FORMAT = "utf-8"
+        self.timeout = 5
         self.SERVER = server_name
         self.PORT = server_port
         self.ADDR = (self.SERVER, self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
         self.send_server("hello")
+        self.client.settimeout(self.timeout)
         print(f"{Colour.ORANGE}Evaluation Client connected{Colour.RESET}", end="\n\n")
     
     def send_server(self, message):
@@ -59,8 +61,9 @@ class EvaluationClient:
                 msg = data.decode(self.FORMAT)
                 break
         except ConnectionResetError:
-            print(f"{Colour.RED}recv_text: Connection Reset{Colour.RESET}", end="\n\n")
+            print(f"{Colour.RED}eval_client: Connection Reset{Colour.RESET}", end="\n\n")
+            raise ConnectionResetError
         except asyncio.TimeoutError:
-            print(f"{Colour.RED}recv_text: Timeout while receiving data{Colour.RESET}", end="\n\n")
+            raise TimeoutError
 
         return msg

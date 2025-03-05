@@ -3,7 +3,6 @@ import paho.mqtt.client as paho
 import traceback
 import json
 from utilities.Colour import Colour
-import random
 
 MQTT_BROKER = "broker.emqx.io"
 MQTT_TOPIC = "cg4002_b15"

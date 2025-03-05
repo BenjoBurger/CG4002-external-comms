@@ -1,7 +1,6 @@
 import sys
-import traceback
-import paho.mqtt.client as paho
 import json
+import paho.mqtt.client as paho
 from utilities.Colour import Colour
 
 MQTT_BROKER = "broker.emqx.io"
@@ -19,16 +18,6 @@ class MQTTServer:
             sys.exit(1)
         print(f"{Colour.PINK}Server Connected to MQTT broker{Colour.RESET}", end="\n\n")
         self.client.subscribe(MQTT_TOPIC, 0)
-        
-    def run(self):
-        try:
-            self.client.loop_forever()
-        except Exception:
-            print(f"{Colour.RED}Caught an Exception:{Colour.RESET}")
-            traceback.print_exc()
-        finally:
-            print(f"{Colour.PINK}Disconnecting from the MQTT broker{Colour.RESET}", end="\n\n")
-            self.client.disconnect()
         
     def message_handling(self, client, userdata, message):
         msg = json.loads(message.payload.decode())

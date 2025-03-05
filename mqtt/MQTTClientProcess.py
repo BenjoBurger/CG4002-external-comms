@@ -1,4 +1,3 @@
-from multiprocessing import Queue
 from mqtt.MQTTClient import MQTTClient
 from utilities.Colour import Colour
 import logging

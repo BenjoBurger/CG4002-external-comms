@@ -6,16 +6,19 @@ from utilities.Colour import Colour
 class RelayServer:
     def __init__(self, server_port):
         self.FORMAT = "utf-8"
+        self.timeout = 5
         self.PORT = server_port
         self.ADDR = ('', self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.client.bind(self.ADDR)
         self.client.listen()
-        print(f"{Colour.CYAN}Relay Server Connected{Colour.RESET}", end="\n\n")
+        # self.client.settimeout(self.timeout)
 
     def send_message(self, message, socket):
-        socket.send(f"{len(message)}_{message}".encode(self.FORMAT))
+        json_message = json.dumps(message)
+        packet = f"{len(json_message)}_{json_message}"
+        socket.send(packet.encode(self.FORMAT))
     
     def recv_message(self, conn_socket):
         msg = ""

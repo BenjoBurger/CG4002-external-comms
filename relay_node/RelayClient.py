@@ -1,25 +1,28 @@
-from socket import socket, AF_INET, SOCK_STREAM
 import asyncio
+import json
+from socket import socket, AF_INET, SOCK_STREAM
 from utilities.Colour import Colour
 
 class RelayClient:
     def __init__(self, server_name, server_port):
         self.FORMAT = "utf-8"
+        self.timeout = 5
         self.SERVER = server_name
         self.PORT = server_port
         self.ADDR = (self.SERVER, self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
-        print(f"{Colour.CYAN}Relay Client Connected{Colour.RESET}", end="\n\n")
+        self.client.settimeout(self.timeout)
 
     def send_message(self, message):
-        self.client.send(f"{len(message)}_{message}".encode(self.FORMAT))
+        json_message = json.dumps(message)
+        packet = f"{len(json_message)}_{json_message}"
+        self.client.send(packet.encode(self.FORMAT))
 
     def recv_message(self):
         msg = ""
         try:
             while True:
-                # get length of message            
                 data = b''
                 while not data.endswith(b'_'):
                     _d = self.client.recv(1)
@@ -46,10 +49,27 @@ class RelayClient:
         except ConnectionResetError:
             print(f'{Colour.RED}recv_text: Connection Reset{Colour.RESET}', end="\n\n")
         except asyncio.TimeoutError:
-            print(f'{Colour.RED}recv_text: Timeout while receiving data{Colour.RESET}', end="\n\n")
-
+            print(f"{Colour.RED}recv_text: No response received within {self.timeout} seconds{Colour.RESET}", end="\n\n")
         return msg
     
+    def send_timeout_msg(self):
+        data = {
+            "player_id": 1,
+            "action": "timeout",
+            "ir_data": 1,
+            "gyro_data": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "accel_data": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "timeout": True
+        }
+
     def close(self):
         self.client.close()
         print(f"{Colour.CYAN}Relay Client Closed{Colour.RESET}", end="\n\n")

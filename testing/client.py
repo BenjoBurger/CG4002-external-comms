@@ -1,56 +1,50 @@
-# python 3.11
+#
+# Copyright 2021 HiveMQ GmbH
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-import random
-import time
+import ssl
+from paho import mqtt
+import paho.mqtt.client as paho
+import paho.mqtt.publish as publish
 
-from paho.mqtt import client as mqtt_client
-import json
+MQTT_BROKER = "x112e872.ala.asia-southeast1.emqxsl.com"
 
+# create a set of 2 test messages that will be published at the same time
+# msgs = [{'topic': "test_topic", 'payload': "test 1"}, ("test_topic", "test 2", 0, False)]
 
-broker = 'broker.emqx.io'
-port = 1883
-topic = "cg4002_b15"
-# Generate a Client ID with the publish prefix.
-client_id = f'publish-{random.randint(0, 1000)}'
-# username = 'emqx'
-# password = 'public'
+# use TLS for secure connection with HiveMQ Cloud
+# sslSettings = ssl.SSLContext(mqtt.client.ssl.PROTOCOL_TLS_CLIENT)
+# sslSettings.check_hostname = False
+# sslSettings.verify_mode = ssl.CERT_NONE
 
-def connect_mqtt():
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            print("Connected to MQTT Broker!")
-        else:
-            print("Failed to connect, return code %d\n", rc)
+# put in your cluster credentials and hostname
+# auth = {'username': "test_client", 'password': "Password123"}
+# publish.multiple(msgs, hostname="486053fc50504326b9919dfe4752873a.s1.eu.hivemq.cloud", port=8883, auth=auth,
+#                  tls=sslSettings, protocol=paho.MQTTv31)
 
-    client = mqtt_client.Client(client_id)
-    # client.username_pw_set(username, password)
-    client.on_connect = on_connect
-    client.connect(broker, port)
-    return client
+client = paho.Client("mqtt_client")
+sslSettings = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+sslSettings.check_hostname = False
+sslSettings.verify_mode = ssl.CERT_NONE
+client.tls_set_context(sslSettings)
+client.username_pw_set("test_client", "Password123")
+client.connect(MQTT_BROKER, 8883, 300)
+client.subscribe("test_topic", qos=1)
 
-
-def publish(client, msg):
-    time.sleep(1)
-    message = {
-        "topic": "client/visualiser",
-        "message": msg["action"],
-    }
-    json_message = json.dumps(message)
-    result = client.publish(topic, json_message)
-    # result: [0, 1]
-    status = result[0]
-    if status == 0:
-        print(f"Send `{json_message}` to topic `{topic}`")
-    else:
-        print(f"Failed to send message to topic {topic}")
-
-
-def run(msg):
-    client = connect_mqtt()
-    client.loop_start()
-    publish(client, msg)
-    client.loop_stop()
-
-
-if __name__ == '__main__':
-    run()
+while True:
+    msg = input("Enter message to publish: ")
+    if msg == "exit":
+        break
+    client.publish("test_topic", msg, qos=1)

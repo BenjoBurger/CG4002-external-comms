@@ -1,11 +1,8 @@
-from eval_client.EvaluationClient import EvaluationClient
 import json
+from eval_client.EvaluationClient import EvaluationClient
 from utilities.Action import shield_command, gun_command, reload_command, bomb_command, badminton_command, boxing_command, fencing_command, golf_command
 from utilities.ClientGameState import ClientGameState
 from utilities.Colour import Colour
-import logging
-
-logging.basicConfig(filename="evalclient.log", level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 def eval_client_process(server_name, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue):
     eval_client = EvaluationClient(server_name, server_port)
@@ -23,6 +20,8 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
                     relay_to_eval(message, eval_client, client_game_state,)
                     eval_to_visualiser_queue.put(client_game_state.get_dict())
                     eval_to_relay_queue.put(client_game_state.get_dict())
+        except TimeoutError:
+            continue
         except Exception as e:
             print(f"{Colour.RED}Error in eval_client_process: {e}{Colour.RESET}", end="\n\n")
             raise e
@@ -40,12 +39,14 @@ def relay_to_eval(ai_packet, eval_client, client_game_state):
         return
     print(f"{Colour.ORANGE}Sending data to Eval Server{Colour.RESET}", end="\n\n")
     message = create_message(ai_packet["action"], player1, player2)
-    logging.info(f"Message to Eval Server: {message}")
     eval_client.send_server(message) # send game state to eval server
-    data = eval_client.recv_message() # receive game state from eval server
-    print(f"{Colour.ORANGE}Data received from Eval Server: {data}{Colour.RESET}", end="\n\n")
-    logging.info(f"Data received from Eval Server: {data}")
-    client_game_state.update_game_state(json.loads(data))
+    try:
+        data = eval_client.recv_message() # receive game state from eval server
+        print(f"{Colour.ORANGE}Data received from Eval Server: {data}{Colour.RESET}", end="\n\n")
+        client_game_state.update_game_state(json.loads(data))
+    except TimeoutError:
+        print(f"{Colour.RED}eval_client_process: No response received within {eval_client.timeout} seconds{Colour.RESET}", end="\n\n")
+        return
 
 def do_action(ai_packet, player1, player2):
     ai_action = ai_packet["action"]
