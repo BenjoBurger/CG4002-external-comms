@@ -11,7 +11,7 @@ AI_PORT = 9010
 
 def main():
     server_port = int(input("Enter the server port: "))
-    print()
+    
     try:
         # Create queues
         relay_to_ai_queue = Queue()

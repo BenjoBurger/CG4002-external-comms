@@ -3,7 +3,7 @@ import json
 import paho.mqtt.client as paho
 from utilities.Colour import Colour
 
-MQTT_BROKER = "broker.emqx.io"
+MQTT_BROKER = "localhost"
 MQTT_TOPIC = "cg4002_b15"
 MQTT_PORT = 1883
 

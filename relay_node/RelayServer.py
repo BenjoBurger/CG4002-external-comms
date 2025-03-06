@@ -48,8 +48,7 @@ class RelayServer:
                 msg = data.decode(self.FORMAT)  # Decode raw bytes to UTF-8
                 break
         except ConnectionResetError:
-            print('recv_text: Connection Reset')
+            print(f"{Colour.RED}recv_text: Connection Reset{Colour.RESET}", end="\n\n")
         except asyncio.TimeoutError:
-            print('recv_text: Timeout while receiving data')
-
+            print(f"{Colour.RED}recv_text: No response received within {self.timeout} seconds{Colour.RESET}", end="\n\n")
         return msg

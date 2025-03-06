@@ -12,7 +12,7 @@ class RelayClient:
         self.ADDR = (self.SERVER, self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
-        self.client.settimeout(self.timeout)
+        # self.client.settimeout(self.timeout)
 
     def send_message(self, message):
         json_message = json.dumps(message)

@@ -20,7 +20,7 @@ class EvaluationClient:
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
         self.send_server("hello")
-        self.client.settimeout(self.timeout)
+        # self.client.settimeout(self.timeout)
         print(f"{Colour.ORANGE}Evaluation Client connected{Colour.RESET}", end="\n\n")
     
     def send_server(self, message):
