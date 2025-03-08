@@ -1,17 +1,23 @@
 import sys
 import json
 import paho.mqtt.client as paho
+import ssl
 from utilities.Colour import Colour
 
 MQTT_BROKER = "broker.emqx.io"
 # MQTT_BROKER = "localhost"
 MQTT_TOPIC = "cg4002_b15"
-MQTT_PORT = 1883
+MQTT_PORT = 8883
 
 class MQTTServer:
     def __init__(self, action_queue):
         self.queue = action_queue
-        self.client = paho.Client("mqtt_server")
+        self.client = paho.Client()
+        
+        sslSettings = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        sslSettings.check_hostname = False
+        sslSettings.verify_mode = ssl.CERT_NONE
+        self.client.tls_set_context(sslSettings)
         self.client.on_message = self.message_handling
 
         if self.client.connect(MQTT_BROKER, MQTT_PORT, 300) != 0:

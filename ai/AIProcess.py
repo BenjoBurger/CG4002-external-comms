@@ -31,8 +31,6 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue):
             """
             AI logic goes here
             """
-            print(f"Response: {response_msg}", end="\n\n")
-
             data = {
                 "player_id": response_msg["player_id"],
                 "action": response_msg["action"],
