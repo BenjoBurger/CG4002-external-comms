@@ -66,4 +66,6 @@ def relay_client_process(num_players=1, server_ip="localhost"):
 if __name__ == "__main__":
     num_players = int(input("Enter the number of players: "))
     server_ip = input("Enter the server ip: ")
+    if server_ip == "u96":
+        server_ip = "172.26.190.163"
     relay_client_process(num_players, server_ip)

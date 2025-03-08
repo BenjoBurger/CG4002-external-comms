@@ -1,4 +1,5 @@
-start_up.sh
+startup.txt
+startup.sh
 __pycache__/
 .gitattributes
 *.log
