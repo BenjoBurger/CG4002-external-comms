@@ -24,18 +24,15 @@ def handler(relay_to_ai_queue, eval_to_relay_queue, relay_node_server, conn_sock
             while True:
                 data = relay_node_server.recv_message(conn_socket) # receive message from relay client
                 message = json.loads(data)
-                print(f"{Colour.CYAN}Received message from Relay Client: {message}{Colour.RESET}", end="\n\n")
-                if message["action"] == "timeout":
-                    print(f"{Colour.RED}Timeout: No response received within {relay_node_server.timeout} seconds{Colour.RESET}", end="\n\n")
-                    break
+                print(f"{Colour.CYAN}Received message from Relay Client{Colour.RESET}", end="\n\n")
                 relay_to_ai_queue.put(message) # send message to ai client
                 try:
                     game_state = eval_to_relay_queue.get() # receive game state from eval client
                     if game_state is not None:
-                        print(f"{Colour.CYAN}Sending Game State to Relay Client: {game_state}{Colour.RESET}", end="\n\n")
+                        print(f"{Colour.CYAN}Sending Game State to Relay Client{Colour.RESET}", end="\n\n")
                         relay_node_server.send_message(game_state, conn_socket) # send game state to relay client
                 except Exception as e:
-                    print(f"{Colour.RED} Error in relay server handler: {e} {Colour.RESET}", end="\n\n")
+                    print(f"{Colour.RED}Error in relay server handler: {e} {Colour.RESET}", end="\n\n")
                     break
         finally:
             conn_socket.close()

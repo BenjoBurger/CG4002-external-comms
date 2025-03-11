@@ -1,7 +1,7 @@
 import json
 from eval_client.EvaluationClient import EvaluationClient
 from utilities.Action import shield_command, gun_command, reload_command, bomb_command, badminton_command, boxing_command, fencing_command, golf_command
-from utilities.ClientGameState import ClientGameState
+from eval_client.ClientGameState import ClientGameState
 from utilities.Colour import Colour
 
 def eval_client_process(server_name, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue):
@@ -17,7 +17,7 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
                     # process new action
                     message = action_queue.get()
                     print(f"{Colour.ORANGE}Eval Client received message: {message}{Colour.RESET}", end="\n\n")
-                    relay_to_eval(message, eval_client, client_game_state,)
+                    relay_to_eval(message, eval_client, client_game_state, message["player_id"])
                     eval_to_visualiser_queue.put(client_game_state.get_dict())
                     eval_to_relay_queue.put(client_game_state.get_dict())
         except TimeoutError:
@@ -29,9 +29,16 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
             eval_client.client.close()
             print(f"{Colour.ORANGE}Eval Client Closed{Colour.RESET}", end="\n\n")
 
-def relay_to_eval(ai_packet, eval_client, client_game_state):
-    player1 = client_game_state.player1
-    player2 = client_game_state.player2
+def relay_to_eval(ai_packet, eval_client, client_game_state, curr_player):
+    player1 = None
+    player2 = None
+    if curr_player == 1:
+        player1 = client_game_state.player1
+        player2 = client_game_state.player2
+    else:
+        player1 = client_game_state.player2
+        player2 = client_game_state.player1
+    
     success = do_action(ai_packet, player1, player2)
     if not success:
         print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")

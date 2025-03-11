@@ -41,7 +41,7 @@ class Player:
         if self.num_bullets > 0:
             self.num_bullets -= 1
             if visible:
-                opponent.take_damage(5)
+                opponent.take_damage(self.hp_bullet)
             return "Player shot!"
         else:
             self.reload()
@@ -54,7 +54,7 @@ class Player:
         if self.num_bombs > 0:
             self.num_bombs -= 1
             if visible:
-                opponent.take_damage(5)
+                opponent.take_damage(self.hp_bomb)
             return "Player bombed!"
         else:
             return "Player has no bombs!"
@@ -69,22 +69,22 @@ class Player:
 
     def badminton(self, opponent, visible):
         if visible:
-            opponent.take_damage(10)
+            opponent.take_damage(self.hp_AI)
         return "Player used badminton!"
 
     def boxing(self, opponent, visible):
         if visible:
-            opponent.take_damage(10)
+            opponent.take_damage(self.hp_AI)
         return "Player used boxing!"
 
     def fencing(self, opponent, visible):
         if visible:
-            opponent.take_damage(10)
+            opponent.take_damage(self.hp_AI)
         return "Player used fencing"
 
     def golf(self, opponent, visible):
         if visible:
-            opponent.take_damage(10)
+            opponent.take_damage(self.hp_AI)
         return "Player used golf!"
 
     def take_damage(self, damage):

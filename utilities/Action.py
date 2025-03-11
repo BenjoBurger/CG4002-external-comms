@@ -12,7 +12,7 @@ class Action:
 
     @classmethod
     def values(cls):
-        return [cls.none, cls.shoot, cls.shield, cls.bomb, cls.reload, cls.badminton, cls.golf, cls.fencing, cls.boxing, cls.logout]
+        return [cls.none, cls.badminton, cls.boxing, cls.bomb, cls.reload, cls.golf, cls.fencing, cls.shield, cls.logout, cls.shoot]
     
 def shield_command(curr_player):
     curr_player.shield()

@@ -13,10 +13,15 @@ def ai_server_process():
                 try:
                     print(f"{Colour.CYAN}Waiting for message from AI Client{Colour.RESET}", end="\n\n")
                     data = ai_server.recv_message(conn_socket)
-                    message = json.loads(data)
+                    message = data
+                    print(f"{Colour.CYAN}Received message from AI Client: {message}{Colour.RESET}", end="\n\n")
+                    # message = json.load(data)
+                    with open("action.txt", "w") as outfile:
+                        print(f"{Colour.CYAN}Writing message to action.txt{Colour.RESET}", end="\n\n")
+                        outfile.write(message)
                     # AI logic goes here
-                    ai_server.send_message(message, conn_socket)
-                    print(f"{Colour.CYAN}Received message from AI Client: {data}{Colour.RESET}", end="\n\n")
+                    ai_server.send_message(1, conn_socket)
+                    print(f"{Colour.CYAN}Received message from AI Client{Colour.RESET}", end="\n\n")
                 except Exception as e:
                     print(f"{Colour.RED}Error in AI Server: {e}{Colour.RESET}", end="\n\n")
                     break

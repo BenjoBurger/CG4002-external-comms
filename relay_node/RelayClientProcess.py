@@ -19,34 +19,24 @@ def relay_client_process(num_players=1, server_ip="localhost"):
         while True:
             for player in players_list:
                 data = None
-                while True:
-                    user_action = input("> ")
-                    if user_action == "dummy":
-                        data = dummy_packet_list[Random().randint(0, len(dummy_packet_list) - 1)]
-                        break
-                    if user_action in Action.values(): # check if the action is valid
-                        break
-                    print(f"{Colour.RED}Invalid action{Colour.RESET}")
-                if data is None:
+                user_action = input("> ")
+                # while True:
+                #     user_action = input("> ")
+                #     if user_action == "dummy":
+                #         data = dummy_packet_list[Random().randint(0, len(dummy_packet_list) - 1)]
+                #         break
+                #     if user_action in Action.values(): # check if the action is valid
+                #         break
+                #     print(f"{Colour.RED}Invalid action{Colour.RESET}")
+                # if data is None:
                     # create dummy data
-                    data = {
-                        "player_id": player,
-                        "action": user_action,
-                        "ir_data": 1,
-                        "gyro_data": 
-                        {
-                            "x": Random().randint(0, 100),
-                            "y": Random().randint(0, 100),
-                            "z": Random().randint(0, 100),
-                        },
-                        "accel_data": 
-                        {
-                            "x": Random().randint(0, 100),
-                            "y": Random().randint(0, 100),
-                            "z": Random().randint(0, 100),
-                        },
-                    }
-                relay_client.send_message(data)
+                data = {
+                    "player_id": player,
+                    "gun_fired": False,
+                    "IR_Sensor": False,
+                    "imu_data": [1264, 53412, 53768, 8691, 13664, 1207, 16752, 2488, 2400, 9094, 13442, 57796, 2328, 46772, 660, 1228, 63111, 206],
+                }
+                relay_client.send_message(json.dumps(data))
                 try:
                     recv_data = relay_client.recv_message()
                     print(f"{Colour.CYAN}Data received: {recv_data}{Colour.RESET}", end="\n\n")

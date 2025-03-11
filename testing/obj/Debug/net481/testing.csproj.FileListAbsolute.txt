@@ -1,6 +1,0 @@
-/Users/benjoburger/Downloads/UniStuff/Y3S2/CG4002/external_comms/testing/obj/Debug/net481/testing.csproj.AssemblyReference.cache
-/Users/benjoburger/Downloads/UniStuff/Y3S2/CG4002/external_comms/testing/obj/Debug/net481/testing.csproj.SuggestedBindingRedirects.cache
-/Users/benjoburger/Downloads/UniStuff/Y3S2/CG4002/external_comms/testing/obj/Debug/net481/testing.GeneratedMSBuildEditorConfig.editorconfig
-/Users/benjoburger/Downloads/UniStuff/Y3S2/CG4002/external_comms/testing/obj/Debug/net481/testing.AssemblyInfoInputs.cache
-/Users/benjoburger/Downloads/UniStuff/Y3S2/CG4002/external_comms/testing/obj/Debug/net481/testing.AssemblyInfo.cs
-/Users/benjoburger/Downloads/UniStuff/Y3S2/CG4002/external_comms/testing/obj/Debug/net481/testing.csproj.CoreCompileInputs.cache

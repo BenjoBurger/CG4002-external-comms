@@ -22,7 +22,7 @@ def main():
 
         # Create threads
         relay_thread = Process(target=relay_server_process, args=(RELAY_PORT, relay_to_ai_queue, eval_to_relay_queue))
-        ai_thread = Process(target=ai_process, args=(relay_to_ai_queue, ai_to_visualiser_queue, action_queue))
+        ai_thread = Process(target=ai_process, args=(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_relay_queue))
         to_visualiser_thread = Process(target=mqtt_client_process, args=(ai_to_visualiser_queue, eval_to_visualiser_queue))
         from_visualiser_thread = Process(target=mqtt_server_process, args=(action_queue,))
         eval_thread = Process(target=eval_client_process, args=("localhost", server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue))
