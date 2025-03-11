@@ -42,23 +42,19 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                     "action": curr_action,
                     "see_opponent": message["IR_Sensor"]
                 }
-                if curr_action == "bomb":
+                if curr_action == "logout" or curr_action == "none":
+                    data = {
+                        "p1": "",
+                        "p2": "",
+                    }
+                    if message["player_id"] == 1:
+                        data["p1"] = "logout"
+                    else:
+                        data["p2"] = "logout"
+                    eval_to_relay_queue.put(data)
+                else:
                     print(f"{Colour.GREEN}AI Process sending message to Visualiser: {data}{Colour.RESET}", end="\n\n")
                     ai_to_visualiser_queue.put(data) # send message to visualiser to query
-                else:
-                    print(f"{Colour.GREEN}AI Process sending message to Eval Client: {data}{Colour.RESET}", end="\n\n")
-                    if curr_action == "logout" or curr_action == "none":
-                        data = {
-                            "p1": "",
-                            "p2": "",
-                        }
-                        if message["player_id"] == 1:
-                            data["p1"] = "logout"
-                        else:
-                            data["p2"] = "logout"
-                        eval_to_relay_queue.put(data)
-                    else:
-                        action_queue.put(data) # send message to eval client immediately
     except Exception as e:
         print(f"{Colour.RED}Error in ai_process: {e}{Colour.RESET}", end="\n\n")
         raise e

@@ -34,7 +34,7 @@ class MQTTServer:
             data = {
                 "player_id": msg["playerId"],
                 "action": msg["action"],
-                "see_opponent": msg["seeOpponent"]
+                "see_opponent": msg["seeOpponent"],
             }
             self.queue.put(data)
             print(f"{Colour.PINK}MQTT Server Received message '{topic}: {msg}'{Colour.RESET}", end="\n\n")

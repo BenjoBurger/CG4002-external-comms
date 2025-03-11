@@ -17,7 +17,7 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
                     # process new action
                     message = action_queue.get()
                     print(f"{Colour.ORANGE}Eval Client received message: {message}{Colour.RESET}", end="\n\n")
-                    relay_to_eval(message, eval_client, client_game_state, message["player_id"])
+                    relay_to_eval(message, eval_client, client_game_state)
                     eval_to_visualiser_queue.put(client_game_state.get_dict())
                     eval_to_relay_queue.put(client_game_state.get_dict())
         except TimeoutError:
@@ -29,21 +29,19 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
             eval_client.client.close()
             print(f"{Colour.ORANGE}Eval Client Closed{Colour.RESET}", end="\n\n")
 
-def relay_to_eval(ai_packet, eval_client, client_game_state, curr_player):
+def relay_to_eval(ai_packet, eval_client, client_game_state):
+    curr_player = ai_packet["player_id"]
     player1 = None
     player2 = None
-    if curr_player == 1:
+    if curr_player == "1":
         player1 = client_game_state.player1
         player2 = client_game_state.player2
     else:
         player1 = client_game_state.player2
         player2 = client_game_state.player1
     
-    success = do_action(ai_packet, player1, player2)
-    if not success:
-        print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
-        eval_client.client.close()
-        return
+    logout = do_action(ai_packet, player1, player2)
+    
     print(f"{Colour.ORANGE}Sending data to Eval Server{Colour.RESET}", end="\n\n")
     message = create_message(ai_packet["action"], player1, player2)
     eval_client.send_server(message) # send game state to eval server
@@ -51,6 +49,10 @@ def relay_to_eval(ai_packet, eval_client, client_game_state, curr_player):
         data = eval_client.recv_message() # receive game state from eval server
         print(f"{Colour.ORANGE}Data received from Eval Server: {data}{Colour.RESET}", end="\n\n")
         client_game_state.update_game_state(json.loads(data))
+        if logout:
+            print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
+            eval_client.client.close()
+            return
     except TimeoutError:
         print(f"{Colour.RED}eval_client_process: No response received within {eval_client.timeout} seconds{Colour.RESET}", end="\n\n")
         return
@@ -58,7 +60,7 @@ def relay_to_eval(ai_packet, eval_client, client_game_state, curr_player):
 def do_action(ai_packet, player1, player2):
     ai_action = ai_packet["action"]
     see_opponent = ai_packet["see_opponent"]
-    success = True
+    logout = False
     print(f"{Colour.ORANGE}Performing action: {ai_action}{Colour.RESET}", end="\n\n")
     if ai_action == "shield":
         shield_command(player1)
@@ -76,9 +78,9 @@ def do_action(ai_packet, player1, player2):
         fencing_command(player1, player2, see_opponent)
     elif ai_action == "golf":
         golf_command(player1, player2, see_opponent)
-    else:
-        success = False # logout action
-    return success
+    elif ai_action == "logout":
+        logout = True # logout action or invalid action
+    return logout
 
 def create_message(action, curr_player, opponent):
     message = {

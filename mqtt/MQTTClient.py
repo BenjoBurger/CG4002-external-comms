@@ -26,7 +26,7 @@ class MQTTClient:
     def send_action(self, ai_message):
         try:
             message = {
-                "topic": "client/visualiser",
+                "topic": "client/visualiser/action",
                 "message": {
                     "player_id": ai_message["player_id"],
                     "action": ai_message["action"],
@@ -41,7 +41,7 @@ class MQTTClient:
     def send_game_state(self, game_state):
         try:
             message = {
-                "topic": "client/visualiser",
+                "topic": "client/visualiser/game_state",
                 "message": game_state,
             }
             self.send_mqtt_message(message)
