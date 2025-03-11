@@ -27,7 +27,11 @@ class MQTTClient:
         try:
             message = {
                 "topic": "client/visualiser",
-                "message": ai_message["action"],
+                "message": {
+                    "player_id": ai_message["player_id"],
+                    "action": ai_message["action"],
+                    "see_opponent": ai_message["see_opponent"]
+                }
             }
             self.send_mqtt_message(message)
         except Exception:
