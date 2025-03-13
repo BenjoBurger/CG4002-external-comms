@@ -3,7 +3,7 @@
 ## 1. Start the Evaluation Server
 
 1. Open a terminal (**T1**) for the evaluation server.
-2. Execute the following command:
+2. Execute the following command in the `eval_server`:
    ```
    bash run_server.sh
    ```
