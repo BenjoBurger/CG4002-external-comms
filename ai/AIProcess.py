@@ -4,6 +4,8 @@ from utilities.Colour import Colour
 import json
 import time
 
+GUN_IDX = 9
+
 def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_relay_queue):
     ai_client = None
 
@@ -22,7 +24,7 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
             if message["gun_fired"] is True:
                 data = {
                     "player_id": message["player_id"],
-                    "action": Action.values()[9],
+                    "action": Action.values()[GUN_IDX],
                     "see_opponent": message["IR_Sensor"]
                 }
                 action_queue.put(data)
@@ -37,22 +39,23 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                     raise e
                 curr_action = Action.values()[int(response)]
                 
-                data = {
-                    "player_id": message["player_id"],
-                    "action": curr_action,
-                    "see_opponent": message["IR_Sensor"]
-                }
+                
                 if curr_action == "logout" or curr_action == "none":
                     data = {
                         "p1": "",
                         "p2": "",
                     }
                     if message["player_id"] == 1:
-                        data["p1"] = "logout"
+                        data["p1"] = curr_action
                     else:
-                        data["p2"] = "logout"
+                        data["p2"] = curr_action
                     eval_to_relay_queue.put(data)
                 else:
+                    data = {
+                        "player_id": message["player_id"],
+                        "action": curr_action,
+                        "see_opponent": message["IR_Sensor"]
+                    }
                     print(f"{Colour.GREEN}AI Process sending message to Visualiser: {data}{Colour.RESET}", end="\n\n")
                     ai_to_visualiser_queue.put(data) # send message to visualiser to query
     except Exception as e:
