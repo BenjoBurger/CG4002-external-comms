@@ -35,7 +35,8 @@ if __name__ == "__main__":
     num_players = int(input("Enter the number of players: "))
     server_ip = input("Enter the server ip: ")
     if server_ip == "u96":
-        server_ip = "172.26.190.163"
+        server_ip = "172.26.191.109"
+        # server_ip = "192.168.183.13"
     try:
         beetle_to_relay_queue = Queue()
         relay_to_beetle_queue = Queue()

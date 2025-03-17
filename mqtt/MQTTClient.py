@@ -41,7 +41,7 @@ class MQTTClient:
     def send_game_state(self, game_state):
         try:
             message = {
-                "topic": "client/visualiser/game_state",
+                "topic": "client/visualiser/gamestate",
                 "message": game_state,
             }
             self.send_mqtt_message(message)
@@ -51,7 +51,7 @@ class MQTTClient:
 
     def send_mqtt_message(self, message):
         json_message = json.dumps(message)
-        print(f"{Colour.PINK}Sending Message to Visualiser: {json_message}{Colour.RESET}", end="\n\n")
+        print(f"{Colour.PINK}Sending Message to Visualiser{Colour.RESET}", end="\n\n")
         status = self.client.publish(MQTT_TOPIC, json_message, 0)
         # if status == 0:
         #     print(f"{Colour.PINK}Sending Message to visualiser `{message}` to topic `{MQTT_TOPIC}`{Colour.RESET}", end="\n\n")

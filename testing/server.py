@@ -1,11 +1,20 @@
 import sys
 import ssl
 import paho.mqtt.client as paho
+import json
 
 MQTT_BROKER = "broker.emqx.io"
 
 def message_handling(client, userdata, msg):
-    print(f"{msg.topic}: {msg.payload.decode()}")
+    msg = json.loads(msg.payload.decode())
+    if msg["topic"] == "visualiser/mqtt_server":
+        data = {
+            "player_id": msg["playerId"],
+            "action": msg["action"],
+            "is_active": int(msg["isActive"]),
+            "is_visible": msg["isVisible"],
+        }
+        print(f"{msg.topic}: {data}")
 
 
 client = paho.Client("mqtt_server")
@@ -29,3 +38,23 @@ except Exception:
 finally:
     print("Disconnecting from the MQTT broker")
     client.disconnect()
+
+# import os
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# from relay_node.RelayServer import RelayServer
+# from utilities.Colour import Colour
+
+# try:
+#     relay_node_server = RelayServer(8000)
+#     print(f"{Colour.CYAN}Relay Server Connected{Colour.RESET}", end="\n\n")
+#     while True:
+#         # Accept connection from relay client
+#         conn_socket, client_addr = relay_node_server.client.accept()
+#         print(f"{Colour.CYAN}Relay Client connected: {client_addr}{Colour.RESET}", end="\n\n")
+# except Exception as e:
+#     print(f"{Colour.RED}Error in relay_server_process: {e}{Colour.RESET}", end="\n\n")
+#     raise e
+# finally:
+#     relay_node_server.client.close()
+#     print(f"{Colour.CYAN}Relay Server Closed{Colour.RESET}", end="\n\n")
+

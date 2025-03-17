@@ -15,12 +15,29 @@ def ai_server_process():
                     data = ai_server.recv_message(conn_socket)
                     message = data
                     print(f"{Colour.CYAN}Received message from AI Client: {message}{Colour.RESET}", end="\n\n")
-                    # message = json.load(data)
-                    with open("action.txt", "w") as outfile:
-                        print(f"{Colour.CYAN}Writing message to action.txt{Colour.RESET}", end="\n\n")
-                        outfile.write(message)
                     # AI logic goes here
-                    ai_server.send_message(1, conn_socket)
+                    classification = 0
+                    if data == "gun":
+                        classification = 9
+                    elif data == "logout":
+                        classification = 8
+                    elif data == "shield":
+                        classification = 7
+                    elif data == "fencing":
+                        classification = 6
+                    elif data == "golf":
+                        classification = 5
+                    elif data == "reload":
+                        classification = 4
+                    elif data == "bomb":
+                        classification = 3
+                    elif data == "boxing":
+                        classification = 2
+                    elif data == "badminton":
+                        classification = 1
+                    else:
+                        classification = 0
+                    ai_server.send_message(classification, conn_socket)
                     print(f"{Colour.CYAN}Received message from AI Client{Colour.RESET}", end="\n\n")
                 except Exception as e:
                     print(f"{Colour.RED}Error in AI Server: {e}{Colour.RESET}", end="\n\n")

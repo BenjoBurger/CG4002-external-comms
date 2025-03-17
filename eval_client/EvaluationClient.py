@@ -24,7 +24,6 @@ class EvaluationClient:
         print(f"{Colour.ORANGE}Evaluation Client connected{Colour.RESET}", end="\n\n")
     
     def send_server(self, message):
-        print(f"{Colour.ORANGE}Sending {message}{Colour.RESET}", end="\n\n")
         encoded_message = message.encode(self.FORMAT)
         padded_data = pad(encoded_message, self.BLOCK_SIZE)
         iv = Random.new().read(AES.block_size) 

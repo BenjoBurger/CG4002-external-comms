@@ -1,10 +1,14 @@
 import json
 from eval_client.EvaluationClient import EvaluationClient
-from utilities.Action import shield_command, gun_command, reload_command, bomb_command, badminton_command, boxing_command, fencing_command, golf_command
+from utilities.Action import shield_command, gun_command, reload_command, bomb_command, badminton_command, boxing_command, fencing_command, golf_command, snow_detection
 from eval_client.ClientGameState import ClientGameState
 from utilities.Colour import Colour
 
-def eval_client_process(server_name, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue):
+def eval_client_process(server_name, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue, is_relay_client_connected, is_ai_client_connected, is_mqtt_client_connected, is_mqtt_server_connected):
+    while True:
+        if is_relay_client_connected.value and is_ai_client_connected.value and is_mqtt_client_connected.value and is_mqtt_server_connected.value:
+            print(f"{Colour.ORANGE}All Clients Connected{Colour.RESET}", end="\n\n")
+            break
     eval_client = EvaluationClient(server_name, server_port)
     client_game_state = ClientGameState()
     handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queue, eval_to_relay_queue)
@@ -16,7 +20,7 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
                 if not action_queue.empty():
                     # process new action
                     message = action_queue.get()
-                    print(f"{Colour.ORANGE}Eval Client received message: {message}{Colour.RESET}", end="\n\n")
+                    print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
                     relay_to_eval(message, eval_client, client_game_state)
                     eval_to_visualiser_queue.put(client_game_state.get_dict())
                     eval_to_relay_queue.put(client_game_state.get_dict())
@@ -29,25 +33,25 @@ def handle(eval_client, client_game_state, action_queue, eval_to_visualiser_queu
             eval_client.client.close()
             print(f"{Colour.ORANGE}Eval Client Closed{Colour.RESET}", end="\n\n")
 
-def relay_to_eval(ai_packet, eval_client, client_game_state):
-    curr_player = ai_packet["player_id"]
+def relay_to_eval(packet, eval_client, client_game_state):
+    curr_player = int(packet["player_id"])
     player1 = None
     player2 = None
-    if curr_player == "1":
+    if curr_player == 1:
         player1 = client_game_state.player1
         player2 = client_game_state.player2
     else:
         player1 = client_game_state.player2
         player2 = client_game_state.player1
     
-    logout = do_action(ai_packet, player1, player2)
+    logout = do_action(packet, player1, player2)
     
-    print(f"{Colour.ORANGE}Sending data to Eval Server{Colour.RESET}", end="\n\n")
-    message = create_message(ai_packet["action"], player1, player2)
+    message = create_message(packet["action"], player1, player2)
+    print(f"{Colour.ORANGE}Sending Data to Eval Server{Colour.RESET}", end="\n\n")
     eval_client.send_server(message) # send game state to eval server
     try:
         data = eval_client.recv_message() # receive game state from eval server
-        print(f"{Colour.ORANGE}Data received from Eval Server: {data}{Colour.RESET}", end="\n\n")
+        print(f"{Colour.ORANGE}Data received from Eval Server{Colour.RESET}", end="\n\n")
         client_game_state.update_game_state(json.loads(data))
         if logout:
             print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
@@ -57,29 +61,33 @@ def relay_to_eval(ai_packet, eval_client, client_game_state):
         print(f"{Colour.RED}eval_client_process: No response received within {eval_client.timeout} seconds{Colour.RESET}", end="\n\n")
         return
 
-def do_action(ai_packet, player1, player2):
-    ai_action = ai_packet["action"]
-    see_opponent = ai_packet["see_opponent"]
+def do_action(packet, curr_player, opponent):
+    ai_action = packet["action"]
+    is_active = packet["is_active"]
+    is_visible = packet["is_visible"]
+
     logout = False
     print(f"{Colour.ORANGE}Performing action: {ai_action}{Colour.RESET}", end="\n\n")
     if ai_action == "shield":
-        shield_command(player1)
+        shield_command(curr_player)
     elif ai_action == "gun":
-        gun_command(player1, player2, see_opponent)
+        gun_command(curr_player, opponent, is_visible)
     elif ai_action == "reload":
-        reload_command(player1)
+        reload_command(curr_player)
     elif ai_action == "bomb":
-        bomb_command(player1, player2, see_opponent)
+        bomb_command(curr_player, opponent, is_visible)
     elif ai_action == "badminton":
-        badminton_command(player1, player2, see_opponent)
+        badminton_command(curr_player, opponent, is_visible)
     elif ai_action == "boxing":
-        boxing_command(player1, player2, see_opponent)
+        boxing_command(curr_player, opponent, is_visible)
     elif ai_action == "fencing":
-        fencing_command(player1, player2, see_opponent)
+        fencing_command(curr_player, opponent, is_visible)
     elif ai_action == "golf":
-        golf_command(player1, player2, see_opponent)
+        golf_command(curr_player, opponent, is_visible)
     elif ai_action == "logout":
         logout = True # logout action or invalid action
+    if ai_action != "bomb":    
+        snow_detection(curr_player, opponent, is_active)
     return logout
 
 def create_message(action, curr_player, opponent):

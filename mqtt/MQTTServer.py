@@ -31,10 +31,12 @@ class MQTTServer:
         topic = message.topic
         # only handle messages from visualiser
         if msg["topic"] == "visualiser/mqtt_server":
+            print(f"{Colour.PINK}MQTT Server Received message from Visualiser{Colour.RESET}", end="\n\n")
             data = {
                 "player_id": msg["playerId"],
                 "action": msg["action"],
-                "see_opponent": msg["seeOpponent"],
+                "is_active": msg["isActive"],
+                "is_visible": msg["isVisible"]
             }
             self.queue.put(data)
             print(f"{Colour.PINK}MQTT Server Received message '{topic}: {msg}'{Colour.RESET}", end="\n\n")

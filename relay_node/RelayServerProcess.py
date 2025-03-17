@@ -2,7 +2,7 @@ from relay_node.RelayServer import RelayServer
 import json
 from utilities.Colour import Colour
 
-def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue):
+def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue, is_relay_client_connected):
     try:
         relay_node_server = RelayServer(server_port)
         print(f"{Colour.CYAN}Relay Server Connected{Colour.RESET}", end="\n\n")
@@ -10,6 +10,8 @@ def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue):
             # Accept connection from relay client
             conn_socket, client_addr = relay_node_server.client.accept()
             print(f"{Colour.CYAN}Relay Client connected: {client_addr}{Colour.RESET}", end="\n\n")
+            with is_relay_client_connected.get_lock():
+                is_relay_client_connected.value = True
             handler(relay_to_ai_queue, eval_to_relay_queue, relay_node_server, conn_socket, client_addr)
     except Exception as e:
         print(f"{Colour.RED}Error in relay_server_process: {e}{Colour.RESET}", end="\n\n")

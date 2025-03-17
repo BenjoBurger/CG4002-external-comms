@@ -3,8 +3,10 @@ from multiprocessing import Queue
 from utilities.Colour import Colour
 import traceback
 
-def mqtt_server_process(action_queue):
+def mqtt_server_process(action_queue, is_mqtt_server_connected):
     mqtt_server = MQTTServer(action_queue)
+    with is_mqtt_server_connected.get_lock():
+        is_mqtt_server_connected.value = True
     try:
         mqtt_server.client.loop_forever()
     except Exception:

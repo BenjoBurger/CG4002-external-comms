@@ -1,8 +1,10 @@
 from mqtt.MQTTClient import MQTTClient
 from utilities.Colour import Colour
 
-def mqtt_client_process(ai_to_visualiser_queue, eval_to_visualiser_queue):
+def mqtt_client_process(ai_to_visualiser_queue, eval_to_visualiser_queue, is_mqtt_client_connected):
     mqtt_client = MQTTClient()
+    with is_mqtt_client_connected.get_lock():
+        is_mqtt_client_connected.value = True
     while True:
         # get message from ai process and send to visualiser
         try:
