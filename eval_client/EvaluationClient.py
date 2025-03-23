@@ -64,5 +64,4 @@ class EvaluationClient:
             raise ConnectionResetError
         except asyncio.TimeoutError:
             raise TimeoutError
-
         return msg

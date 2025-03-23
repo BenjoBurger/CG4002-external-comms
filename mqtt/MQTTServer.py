@@ -13,7 +13,6 @@ class MQTTServer:
     def __init__(self, action_queue):
         self.queue = action_queue
         self.client = paho.Client()
-        
         sslSettings = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         sslSettings.check_hostname = False
         sslSettings.verify_mode = ssl.CERT_NONE
@@ -29,14 +28,18 @@ class MQTTServer:
     def message_handling(self, client, userdata, message):
         msg = json.loads(message.payload.decode())
         topic = message.topic
-        # only handle messages from visualiser
-        if msg["topic"] == "visualiser/mqtt_server":
-            print(f"{Colour.PINK}MQTT Server Received message from Visualiser{Colour.RESET}", end="\n\n")
-            data = {
-                "player_id": msg["playerId"],
-                "action": msg["action"],
-                "is_active": msg["isActive"],
-                "is_visible": msg["isVisible"]
-            }
-            self.queue.put(data)
-            print(f"{Colour.PINK}MQTT Server Received message '{topic}: {msg}'{Colour.RESET}", end="\n\n")
+        try:
+            # only handle messages from visualiser
+            if msg["topic"] == "visualiser/mqtt_server":
+                print(f"{Colour.PINK}MQTT Server Received message from Visualiser{Colour.RESET}", end="\n\n")
+                data = {
+                    "player_id": msg["playerId"],
+                    "action": msg["action"],
+                    "is_active": msg["isActive"],
+                    "is_visible": msg["isVisible"]
+                }
+                self.queue.put(data)
+                # print(f"{Colour.PINK}MQTT Server Received message '{topic}: {msg}'{Colour.RESET}", end="\n\n")
+        except Exception as e:
+            print(f"{Colour.RED}Error in MQTTServer message_handling: {e}{Colour.RESET}", end="\n\n")
+            return

@@ -17,6 +17,7 @@ class MQTTClient:
         sslSettings.check_hostname = False
         sslSettings.verify_mode = ssl.CERT_NONE
         self.client.tls_set_context(sslSettings)
+        self.client.reconnect_delay_set(min_delay=1, max_delay=120)
 
         if self.client.connect(MQTT_BROKER, MQTT_PORT, 300) != 0:
             print(f"{Colour.RED}Could not connect to MQTT broker!{Colour.RESET}", end="\n\n")
@@ -30,7 +31,6 @@ class MQTTClient:
                 "message": {
                     "player_id": ai_message["player_id"],
                     "action": ai_message["action"],
-                    "see_opponent": ai_message["see_opponent"]
                 }
             }
             self.send_mqtt_message(message)

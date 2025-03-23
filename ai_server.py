@@ -13,8 +13,7 @@ def ai_server_process():
                 try:
                     print(f"{Colour.CYAN}Waiting for message from AI Client{Colour.RESET}", end="\n\n")
                     data = ai_server.recv_message(conn_socket)
-                    message = data
-                    print(f"{Colour.CYAN}Received message from AI Client: {message}{Colour.RESET}", end="\n\n")
+                    print(f"{Colour.CYAN}Received message from AI Client: {data}{Colour.RESET}", end="\n\n")
                     # AI logic goes here
                     classification = 0
                     if data == "gun":
@@ -37,17 +36,16 @@ def ai_server_process():
                         classification = 1
                     else:
                         classification = 0
-                    ai_server.send_message(classification, conn_socket)
-                    print(f"{Colour.CYAN}Received message from AI Client{Colour.RESET}", end="\n\n")
+                    ai_server.send_message(str(classification), conn_socket)
                 except Exception as e:
                     print(f"{Colour.RED}Error in AI Server: {e}{Colour.RESET}", end="\n\n")
                     break
     except Exception as e:
-        print(f"{Colour.RED}Error in relay_server_process: {e}{Colour.RESET}", end="\n\n")
+        print(f"{Colour.RED}Error in ai_server_process: {e}{Colour.RESET}", end="\n\n")
         raise e
     finally:
         ai_server.client.close()
-        print(f"{Colour.CYAN}Relay Server Closed{Colour.RESET}", end="\n\n")
+        print(f"{Colour.CYAN}AI Server Closed{Colour.RESET}", end="\n\n")
 
 if __name__ == "__main__":
     ai_server_process()
