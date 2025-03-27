@@ -19,7 +19,7 @@ def handler(eval_client, client_game_state, action_queue, eval_to_visualiser_que
     while True:
         try:
             while True:
-                # process new action
+                # Process new action
                 message = action_queue.get()
                 print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
                 if message["player_id"] == 1 and p1_action is not None:
@@ -64,7 +64,7 @@ def clear_queue(queue):
         queue.get()
 
 def relay_to_eval(packet, eval_client, client_game_state):
-    curr_player_id = int(packet["player_id"])
+    curr_player_id = packet["player_id"]
     curr_player = None
     opponent = None
     
@@ -84,10 +84,9 @@ def relay_to_eval(packet, eval_client, client_game_state):
         data = eval_client.recv_message() # receive game state from eval server
         print(f"{Colour.ORANGE}Data received from Eval Server{Colour.RESET}", end="\n\n")
         client_game_state.update_game_state(json.loads(data))
-        # if logout:
-        #     print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
-        #     eval_client.disconnect()
-        #     return
+        if logout:
+            print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
+            return
         return curr_player_id
     except Exception as e:
         print(f"{Colour.RED}Error in relay_to_eval: {e}{Colour.RESET}", end="\n\n")

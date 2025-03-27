@@ -9,7 +9,7 @@ from multiprocessing import Process, Queue, Value
 # P1_RELAY_PORT = 8000
 # P2_RELAY_PORT = 8002
 RECV_PORT = 8000
-SEND_PORT = 8010
+SEND_PORT = 8080
 AI_PORT = 9010
 SERVER_ADDR = "localhost"
 

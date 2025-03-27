@@ -1,6 +1,7 @@
 import asyncio
 import json
-from socket import socket, AF_INET, SOCK_STREAM, timeout as SocketTimeout
+import time
+from socket import socket, AF_INET, SOCK_STREAM, timeout as SocketTimeout, gaierror as GAIError
 from utilities.Colour import Colour
 
 class RelayClient:
@@ -10,9 +11,57 @@ class RelayClient:
         self.SERVER = server_name
         self.PORT = server_port
         self.ADDR = (self.SERVER, self.PORT)
-        self.client = socket(AF_INET, SOCK_STREAM)
-        self.client.connect(self.ADDR)
+        # self.client = socket(AF_INET, SOCK_STREAM)
+        # self.client.connect(self.ADDR)
         # self.client.settimeout(self.timeout)
+        self.client = None
+        self.connected = False
+        
+        # Connection parameters
+        self.max_retries = 3
+        self.retry_delay = 5
+        
+        # Attempt to connect
+        self._connect()
+
+    def _connect(self):
+        """Attempt to establish a connection to the server"""
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                print(f"{Colour.CYAN}Attempting to connect to {self.SERVER}:{self.PORT} (Attempt {retries+1}/{self.max_retries}){Colour.RESET}", end="\n\n")
+                self.client = socket(AF_INET, SOCK_STREAM)
+                self.client.settimeout(self.timeout)  # Set socket timeout
+                self.client.connect(self.ADDR)
+                self.connected = True
+                print(f"{Colour.GREEN}Successfully connected to {self.SERVER}:{self.PORT}{Colour.RESET}", end="\n\n")
+                return True
+            except SocketTimeout:
+                print(f"{Colour.RED}Connection timed out while trying to connect to {self.SERVER}:{self.PORT}{Colour.RESET}", end="\n\n")
+            except ConnectionRefusedError:
+                print(f"{Colour.RED}Connection refused by {self.SERVER}:{self.PORT}. Is the server running?{Colour.RESET}", end="\n\n")
+            except GAIError:
+                print(f"{Colour.RED}Address-related error when connecting to {self.SERVER}:{self.PORT}{Colour.RESET}", end="\n\n")
+            except OSError as e:
+                print(f"{Colour.RED}OS error when connecting to {self.SERVER}:{self.PORT}: {e}{Colour.RESET}", end="\n\n")
+            except Exception as e:
+                print(f"{Colour.RED}Unexpected error when connecting to {self.SERVER}:{self.PORT}: {e}{Colour.RESET}", end="\n\n")
+            
+            # Close socket if it was created
+            if self.client:
+                try:
+                    self.client.close()
+                except:
+                    pass
+                self.client = None
+            
+            retries += 1
+            if retries < self.max_retries:
+                print(f"{Colour.YELLOW}Retrying in {self.retry_delay} seconds...{Colour.RESET}", end="\n\n")
+                time.sleep(self.retry_delay)
+                
+        # If we got here, we failed to connect after max_retries
+        raise ConnectionError(f"Failed to connect to {self.SERVER}:{self.PORT} after {self.max_retries} attempts")
 
     def send_message(self, message):
         packet = f"{len(message)}_{message}"

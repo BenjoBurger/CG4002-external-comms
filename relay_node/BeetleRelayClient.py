@@ -37,7 +37,7 @@ def relay_main():
     # if server_ip == "u96":
     server_ip = "172.26.191.109"
     SEND_PORT = 8000
-    RECV_PORT = 8010
+    RECV_PORT = 8080
 
     try:
         send_thread = mp.Process(target=relay_client_process, args=(server_ip, SEND_PORT, beetles_to_relay_queue))

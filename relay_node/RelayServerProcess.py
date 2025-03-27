@@ -42,6 +42,12 @@ def recv_from_client(server_port, relay_to_ai_queue, is_relay_client_connected):
                     
                     # send message to ai client
                     message = json.loads(data)
+                    # if (message["player_id"] == 1 and message["gun_fired"] == True) or (message["player_id"] == 2 and message["IR_Sensor"] == 1):
+                    #     p1_shot_queue.put(message)
+                    #     pass
+                    # if (message["player_id"] == 2 and message["gun_fired"] == True) or (message["player_id"] == 1 and message["IR_Sensor"] == 1):
+                    #     p2_shot_queue.put(message)
+                    #     pass
                     relay_to_ai_queue.put(message)
                 except Exception as e:
                     print(f"{Colour.RED}Error in receiving message: {e} {Colour.RESET}", end="\n\n")
@@ -86,6 +92,8 @@ def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected):
                     if game_state is not None:
                         print(f"{Colour.CYAN}Sending Game State to Relay Client{Colour.RESET}", end="\n\n")
                         relay_server.send_message(json.dumps(game_state), conn_socket)
+                        if game_state["p1"] == "logout" and game_state["p2"] == "logout":
+                            print(f"{Colour.CYAN}Logout action{Colour.RESET}", end="\n\n")
                 except queue.Empty:
                     # print(f"{Colour.CYAN}No Game State from Eval Client{Colour.RESET}", end="\n\n")
                     continue

@@ -1,5 +1,4 @@
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR, error as SocketError
-import json
 import traceback
 from utilities.Colour import Colour
 

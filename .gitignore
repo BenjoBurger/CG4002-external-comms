@@ -5,3 +5,4 @@ __pycache__/
 *.log
 *.env
 action.txt
+startup_local.sh

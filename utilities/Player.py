@@ -42,8 +42,6 @@ class Player:
             self.num_bullets -= 1
             if visible:
                 opponent.take_damage(self.hp_bullet)
-        else:
-            self.reload()
 
     def reload(self):
         if self.num_bullets == 0:
