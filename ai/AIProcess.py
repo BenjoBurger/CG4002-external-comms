@@ -30,7 +30,7 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
             while True:
                 # Receive message from relay client
                 message = relay_to_ai_queue.get()
-                print(f"{Colour.GREEN}AI Process received message{Colour.RESET}", end="\n\n")
+                # print(f"{Colour.GREEN}AI Process received message{Colour.RESET}", end="\n\n")
 
                 # Get the action from the message
                 curr_action = None
@@ -48,13 +48,13 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                 else:
                     # Send message to AI Server
                     imu_data = str(message["imu_data"])
-                    print(f"{Colour.GREEN}AI Process sending message to AI Server", end="\n\n")
+                    # print(f"{Colour.GREEN}AI Process sending message to AI Server", end="\n\n")
                     ai_client.send_message(imu_data)
                     try:
                         # Receive message from AI Server
                         response = ai_client.recv_message()
                         curr_action = Action.values()[int(response)]
-                        print(f"{Colour.GREEN}AI Process received message from AI Server", end="\n\n")
+                        # print(f"{Colour.GREEN}AI Process received message from AI Server", end="\n\n")
                     except Exception as e:
                         print(f"{Colour.RED}Error in receiving message from AI Server: {e}{Colour.RESET}", end="\n\n")
                         continue
@@ -65,7 +65,7 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                         P1_LOGOUT_COUNT += 1
                     if message["player_id"] == 2:
                         P2_LOGOUT_COUNT += 1
-                    if P1_LOGOUT_COUNT == 2 and P2_LOGOUT_COUNT == 2:
+                    if P1_LOGOUT_COUNT == 1 and P2_LOGOUT_COUNT == 1:
                         # data = {
                         #     "p1": "logout",
                         #     "p2": "logout",
@@ -83,28 +83,29 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                         ai_to_visualiser_queue.put(p2_visualiser_data)
 
                 # Process the invalid action
-                # elif curr_action == "none":
-                #     data = {
-                #         "p1": "",
-                #         "p2": "",
-                #     }
-                #     if message["player_id"] == 1:
-                #         data["p1"] = curr_action
-                #     else:
-                #         data["p2"] = curr_action
-                #     eval_to_relay_queue.put(data)
+                elif curr_action == "none":
+                    data = {
+                        "p1": "",
+                        "p2": "",
+                    }
+                    if message["player_id"] == 1:
+                        data["p1"] = curr_action
+                    else:
+                        data["p2"] = curr_action
+                    # eval_to_relay_queue.put(data)
 
                 # Process the other actions
-                else:
-                    if message["player_id"] == 1:
-                        P1_LOGOUT_COUNT = 0
-                    if message["player_id"] == 2:
-                        P2_LOGOUT_COUNT = 0
+                else:                    
+                    P1_LOGOUT_COUNT = 0
+                    P2_LOGOUT_COUNT = 0
+                    
                     visualiser_data = {
                         "player_id": message["player_id"],
                         "action": curr_action,
+                        # "visibility": visibility,
                     }
-                    print(f"{Colour.GREEN}AI Process sending message to Visualiser", end="\n\n")
+
+                    # print(f"{Colour.GREEN}AI Process sending message to Visualiser", end="\n\n")
                     ai_to_visualiser_queue.put(visualiser_data)
 
         except BrokenPipeError:

@@ -21,12 +21,12 @@ def handler(eval_client, client_game_state, action_queue, eval_to_visualiser_que
             while True:
                 # Process new action
                 message = action_queue.get()
-                print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
+                # print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
                 if message["player_id"] == 1 and p1_action is not None:
-                    print(f"{Colour.RED}Player 1 has completed their action{Colour.RESET}", end="\n\n")
+                    # print(f"{Colour.RED}Player 1 has completed their action{Colour.RESET}", end="\n\n")
                     continue
                 if message["player_id"] == 2 and p2_action is not None:
-                    print(f"{Colour.RED}Player 2 has completed their action{Colour.RESET}", end="\n\n")
+                    # print(f"{Colour.RED}Player 2 has completed their action{Colour.RESET}", end="\n\n")
                     continue
 
                 # Update game state and send to eval server
@@ -78,14 +78,15 @@ def relay_to_eval(packet, eval_client, client_game_state):
     logout = do_action(packet, curr_player, opponent)
     
     message = create_message(packet["action"], curr_player_id, client_game_state)
-    print(f"{Colour.ORANGE}Sending Data to Eval Server{Colour.RESET}", end="\n\n")
+    # print(f"{Colour.ORANGE}Sending Data to Eval Server{Colour.RESET}", end="\n\n")
     eval_client.send_server(message) # send game state to eval server
     try:
         data = eval_client.recv_message() # receive game state from eval server
-        print(f"{Colour.ORANGE}Data received from Eval Server{Colour.RESET}", end="\n\n")
+        # print(f"{Colour.ORANGE}Data received from Eval Server{Colour.RESET}", end="\n\n")
         client_game_state.update_game_state(json.loads(data))
         if logout:
-            print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
+            # print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
+            eval_client.client.close()
             return
         return curr_player_id
     except Exception as e:
@@ -101,7 +102,7 @@ def do_action(packet, curr_player, opponent):
     is_visible = packet["is_visible"]
 
     logout = False
-    print(f"{Colour.ORANGE}Performing action: {ai_action}{Colour.RESET}", end="\n\n")
+    # print(f"{Colour.ORANGE}Performing action: {ai_action}{Colour.RESET}", end="\n\n")
     if ai_action == "shield":
         shield_command(curr_player)
     elif ai_action == "gun":
@@ -120,7 +121,7 @@ def do_action(packet, curr_player, opponent):
         golf_command(curr_player, opponent, is_visible)
     elif ai_action == "logout":
         logout = True # logout action or invalid action
-    if ai_action != "bomb":    
+    if ai_action != "bomb":
         snow_detection(curr_player, opponent, is_active)
     return logout
 

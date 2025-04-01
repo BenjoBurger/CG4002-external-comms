@@ -31,7 +31,7 @@ def send_to_relay(server_ip, port_number, action_queue, sending_client):
         while True:
             # Action data from internal comms
             data = action_queue.get()
-            print("Data: ", data)
+            # print("Data: ", data)
             if data is not None:
                 relay_client.send_message(json.dumps(data))
     except BrokenPipeError:
@@ -64,7 +64,7 @@ def recv_from_relay(server_ip, port_number, queue, receiving_client):
                 recv_data = relay_client.recv_message()
                 if recv_data == "" or recv_data == "ping":
                     continue
-                print(f"{Colour.CYAN}Data received: {recv_data}{Colour.RESET}", end="\n\n")
+                # print(f"{Colour.CYAN}Data received: {recv_data}{Colour.RESET}", end="\n\n")
                 queue.put(recv_data)
             except Exception as e:
                 print(f"{Colour.RED}Error in relay_client_process: {e}{Colour.RESET}", end="\n\n")

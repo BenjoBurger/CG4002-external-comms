@@ -88,9 +88,9 @@ def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected):
                 try:
                     # Receive game state from eval client
                     game_state = eval_to_relay_queue.get(block=False, timeout=0.1)
-                    print(f"{Colour.CYAN}Received Game State from Eval Client{Colour.RESET}", end="\n\n")
+                    # print(f"{Colour.CYAN}Received Game State from Eval Client{Colour.RESET}", end="\n\n")
                     if game_state is not None:
-                        print(f"{Colour.CYAN}Sending Game State to Relay Client{Colour.RESET}", end="\n\n")
+                        # print(f"{Colour.CYAN}Sending Game State to Relay Client{Colour.RESET}", end="\n\n")
                         if game_state["p1"] == "logout" and game_state["p2"] == "logout":
                             print(f"{Colour.CYAN}Logout action{Colour.RESET}", end="\n\n")
                             conn_socket.close()

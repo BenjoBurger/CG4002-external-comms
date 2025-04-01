@@ -11,9 +11,6 @@ class RelayClient:
         self.SERVER = server_name
         self.PORT = server_port
         self.ADDR = (self.SERVER, self.PORT)
-        # self.client = socket(AF_INET, SOCK_STREAM)
-        # self.client.connect(self.ADDR)
-        # self.client.settimeout(self.timeout)
         self.client = None
         self.connected = False
         
@@ -58,6 +55,8 @@ class RelayClient:
             retries += 1
             if retries < self.max_retries:
                 print(f"{Colour.YELLOW}Retrying in {self.retry_delay} seconds...{Colour.RESET}", end="\n\n")
+                self.PORT += 1  # Increment port for next attempt
+                self.ADDR = (self.SERVER, self.PORT)
                 time.sleep(self.retry_delay)
                 
         # If we got here, we failed to connect after max_retries

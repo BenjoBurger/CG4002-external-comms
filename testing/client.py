@@ -16,7 +16,7 @@ while True:
             data = {
                 "player_id": i,
                 "action": message,
-                "see_opponent": 1
+                # "see_opponent": 1
             }
             client.send_action(data)
             sleep(1)
