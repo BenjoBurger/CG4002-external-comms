@@ -94,6 +94,7 @@ def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected):
                         relay_server.send_message(json.dumps(game_state), conn_socket)
                         if game_state["p1"] == "logout" and game_state["p2"] == "logout":
                             print(f"{Colour.CYAN}Logout action{Colour.RESET}", end="\n\n")
+                            conn_socket.close()
                 except queue.Empty:
                     # print(f"{Colour.CYAN}No Game State from Eval Client{Colour.RESET}", end="\n\n")
                     continue

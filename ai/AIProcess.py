@@ -66,11 +66,11 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                     if message["player_id"] == 2:
                         P2_LOGOUT_COUNT += 1
                     if P1_LOGOUT_COUNT == 2 and P2_LOGOUT_COUNT == 2:
-                        data = {
-                            "p1": "logout",
-                            "p2": "logout",
-                        }
-                        eval_to_relay_queue.put(data)
+                        # data = {
+                        #     "p1": "logout",
+                        #     "p2": "logout",
+                        # }
+                        # eval_to_relay_queue.put(data)
                         p1_visualiser_data = {
                             "player_id": 1,
                             "action": curr_action
@@ -83,16 +83,16 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                         ai_to_visualiser_queue.put(p2_visualiser_data)
 
                 # Process the invalid action
-                elif curr_action == "none":
-                    data = {
-                        "p1": "",
-                        "p2": "",
-                    }
-                    if message["player_id"] == 1:
-                        data["p1"] = curr_action
-                    else:
-                        data["p2"] = curr_action
-                    eval_to_relay_queue.put(data)
+                # elif curr_action == "none":
+                #     data = {
+                #         "p1": "",
+                #         "p2": "",
+                #     }
+                #     if message["player_id"] == 1:
+                #         data["p1"] = curr_action
+                #     else:
+                #         data["p2"] = curr_action
+                #     eval_to_relay_queue.put(data)
 
                 # Process the other actions
                 else:
