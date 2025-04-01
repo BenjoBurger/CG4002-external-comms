@@ -44,21 +44,8 @@ class Player:
                 opponent.take_damage(self.hp_bullet)
 
     def reload(self):
-        if self.num_bullets == 0:
-            self.num_bullets = 6
-
-    def bomb(self, opponent, visible):
-        if self.num_bombs > 0:
-            self.num_bombs -= 1
-            if visible:
-                opponent.take_damage(self.hp_bomb)
-
-
-    def shield(self):
-        if self.num_shield > 0 and self.hp_shield != 30:
-            self.num_shield -= 1
-            self.hp_shield = 30
-
+        if self.num_bullets <= 0:
+            self.num_bullets = self.max_bullets
 
     def badminton(self, opponent, visible):
         if visible:
@@ -81,20 +68,39 @@ class Player:
             opponent.take_damage(self.hp_bomb)
 
     def take_damage(self, damage):
+        # use the shield to protect the player
         if self.hp_shield > 0:
-            self.hp_shield -= damage
-            if self.hp_shield < 0:
-                self.hp += self.hp_shield
-                self.shield_hp = 0
-        else:
-            self.hp -= damage
-            if self.hp <= 0:
-                # if we die, we spawn immediately
-                self.num_deaths += 1
+            new_hp_shield  = max (0, self.hp_shield-damage)
+            # how much should we reduce the HP by?
+            damage   = max (0, damage-self.hp_shield)
+            # update the shield HP
+            self.hp_shield = new_hp_shield
 
-                # initialize all the states
-                self.hp             = self.max_hp
-                self.num_bullets    = self.max_bullets
-                self.num_bombs      = self.max_bombs
-                self.hp_shield      = 0
-                self.num_shield     = self.max_shields
+        # reduce the player HP
+        self.hp = max(0, self.hp - damage)
+        if self.hp == 0:
+            # if we die, we spawn immediately
+            self.num_deaths += 1
+
+            # initialize all the states
+            self.hp             = self.max_hp
+            self.num_bullets    = self.max_bullets
+            self.num_bombs      = self.max_bombs
+            self.hp_shield      = 0
+            self.num_shield     = self.max_shields
+
+    def shield(self):
+        if self.num_shield <= 0:
+            # check the number of shields available
+            return
+        elif self.hp_shield > 0:
+            # check if shield is already active
+            return
+        self.hp_shield = self.max_shield_health
+        self.num_shield -= 1
+
+    def bomb(self, opponent, visible):
+        if self.num_bombs > 0:
+            self.num_bombs -= 1
+            if visible:
+                opponent.take_damage(self.hp_bomb)
