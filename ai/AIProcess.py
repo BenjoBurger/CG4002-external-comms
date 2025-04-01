@@ -54,11 +54,11 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                         # Receive message from AI Server
                         response = ai_client.recv_message()
                         curr_action = Action.values()[int(response)]
-                        # print(f"{Colour.GREEN}AI Process received message from AI Server", end="\n\n")
+                        print(f"{Colour.GREEN}AI Process received message from AI Server", end="\n\n")
                     except Exception as e:
                         print(f"{Colour.RED}Error in receiving message from AI Server: {e}{Colour.RESET}", end="\n\n")
                         continue
-
+                print(f"{Colour.GREEN}Current Action: {curr_action}{Colour.RESET}", end="\n\n")
                 # Process the logout action
                 if curr_action == "logout":
                     if message["player_id"] == 1:

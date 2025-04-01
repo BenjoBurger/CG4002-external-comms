@@ -38,7 +38,7 @@ def recv_from_client(server_port, relay_to_ai_queue, is_relay_client_connected):
                 try:
                     # receive message from relay client
                     data = relay_server.recv_message(conn_socket)
-                    print(f"{Colour.CYAN}Received message from Relay Client: {data}{Colour.RESET}", end="\n\n")
+                    print(f"{Colour.CYAN}Received message from Relay Client{Colour.RESET}", end="\n\n")
                     
                     # send message to ai client
                     message = json.loads(data)

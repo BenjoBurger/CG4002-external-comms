@@ -21,7 +21,7 @@ def handler(eval_client, client_game_state, action_queue, eval_to_visualiser_que
             while True:
                 # Process new action
                 message = action_queue.get()
-                # print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
+                print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
                 if message["player_id"] == 1 and p1_action is not None:
                     # print(f"{Colour.RED}Player 1 has completed their action{Colour.RESET}", end="\n\n")
                     continue

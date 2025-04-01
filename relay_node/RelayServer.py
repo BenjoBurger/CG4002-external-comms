@@ -15,8 +15,6 @@ class RelayServer:
         # self.client.settimeout(self.timeout)
 
     def send_message(self, message, socket):
-        # json_message = json.dumps(message)
-        # packet = f"{len(json_message)}_{json_message}"
         packet = f"{len(message)}_{message}"
         socket.send(packet.encode(self.FORMAT))
     
