@@ -9,14 +9,12 @@ def mqtt_client_process(ai_to_visualiser_queue, eval_to_visualiser_queue, is_mqt
         try:
             while True:
                 # Send message to visualiser to query visibility
-                if not ai_to_visualiser_queue.empty():
-                    message = ai_to_visualiser_queue.get()
-                    mqtt_client.send_action(message)
+                message = ai_to_visualiser_queue.get()
+                mqtt_client.send_action(message)
 
                 # Send message to visualiser to update game state
-                if not eval_to_visualiser_queue.empty():
-                    message = eval_to_visualiser_queue.get()
-                    mqtt_client.send_game_state(message)
+                message = eval_to_visualiser_queue.get()
+                mqtt_client.send_game_state(message)
         except KeyboardInterrupt:
             print(f"{Colour.PINK}Exiting MQTT Server Process{Colour.RESET}", end="\n\n")
             mqtt_client.client.disconnect()
