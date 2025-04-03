@@ -35,6 +35,7 @@ def handler(eval_client, client_game_state, action_queue, eval_to_visualiser_que
                 # Check if player actions are completed
                 if action_completed != -1:
                     # Send game state to visualiser and relay
+                    print(f"{Colour.ORANGE}Sending Game State to Visualiser and Relay{Colour.RESET}", end="\n\n")
                     eval_to_visualiser_queue.put(client_game_state.get_dict())
                     data = {
                         "player_id": message["player_id"],
