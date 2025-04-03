@@ -1,3 +1,4 @@
+from queue import Empty
 import traceback
 from relay_node.RelayClient import RelayClient
 from utilities.Action import Action
@@ -6,10 +7,11 @@ import time
 
 GUN_IDX = 9
 AI_PORT = 9010
+GUN_TIMEOUT = 2
 P1_LOGOUT_COUNT = 0
 P2_LOGOUT_COUNT = 0
 
-def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_relay_queue, is_ai_client_connected):
+def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_ai_client_connected):
     ai_client = None
     global P1_LOGOUT_COUNT, P2_LOGOUT_COUNT
 
@@ -35,16 +37,20 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                 # Get the action from the message
                 curr_action = None
                 visibility = 0
-                if message["IR_Sensor"] == 1:
-                    continue
                 if message["gun_fired"] is True:
                     curr_action = Action.values()[GUN_IDX]
-                    # try:
-                    #     get_shot = action_queue.get(timeout=1)
-                    #     if get_shot["IR_Sensor"] == 1:
-                    #         visibility = 1
-                    # except TimeoutError:
-                    #     pass
+                    try:
+                        if message["player_id"] == 2:
+                            _ = p1_shot_queue.get(timeout=GUN_TIMEOUT)
+                            print(f"{Colour.GREEN}AI Process received message from P1 Shot Queue{Colour.RESET}", end="\n\n")
+                            visibility = 1
+                        elif message["player_id"] == 1:
+                            _ = p2_shot_queue.get(timeout=GUN_TIMEOUT)
+                            print(f"{Colour.GREEN}AI Process received message from P2 Shot Queue{Colour.RESET}", end="\n\n")
+                            visibility = 1
+                    except Empty:
+                        print(f"{Colour.RED}{message['player_id']} did not get shot{Colour.RESET}", end="\n\n")
+                        pass
                 else:
                     # Send message to AI Server
                     imu_data = str(message["imu_data"])
@@ -66,11 +72,6 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                     if message["player_id"] == 2:
                         P2_LOGOUT_COUNT += 1
                     if P1_LOGOUT_COUNT == 1 and P2_LOGOUT_COUNT == 1:
-                        # data = {
-                        #     "p1": "logout",
-                        #     "p2": "logout",
-                        # }
-                        # eval_to_relay_queue.put(data)
                         p1_visualiser_data = {
                             "player_id": 1,
                             "action": curr_action
@@ -102,7 +103,7 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, action_queue, eval_to_
                     visualiser_data = {
                         "player_id": message["player_id"],
                         "action": curr_action,
-                        # "visibility": visibility,
+                        "visibility": visibility,
                     }
 
                     # print(f"{Colour.GREEN}AI Process sending message to Visualiser", end="\n\n")
