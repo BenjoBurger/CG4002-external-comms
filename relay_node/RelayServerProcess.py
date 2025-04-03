@@ -53,7 +53,7 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
                     if P2_ACTION_DONE is True and message["player_id"] == 2:
                         print(f"{Colour.RED}P2 already performed action{Colour.RESET}", end="\n\n")
                         continue
-
+                    
                     if message["IR_Sensor"] == 1:
                         if message["player_id"] == 1:
                             p1_shot_queue.put(message)
@@ -62,6 +62,7 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
                         continue
                     else:
                         relay_to_ai_queue.put(message)
+                    # relay_to_ai_queue.put(message)
                 except Exception as e:
                     print(f"{Colour.RED}Error in receiving message: {e} {Colour.RESET}", end="\n\n")
                     break
