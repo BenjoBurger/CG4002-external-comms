@@ -14,7 +14,7 @@ from multiprocessing import Process, Queue, Value
 SEND_PORT = 8000
 RECV_PORT = 8080
 user_action = [["shoot", "shot", "bomb", "badminton", "boxing", "fencing", "golf"],
-                ["shot", "shoot", "bomb", "badminton", "boxing", "fencing", "golf"]]
+                ["golf", "shoot", "bomb", "badminton", "boxing", "fencing", "golf"]]
 
 def relay_client_process(server_ip, port_number, queue=None, check_client=None):
     if port_number == SEND_PORT:

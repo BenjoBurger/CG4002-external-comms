@@ -1,3 +1,4 @@
+from queue import Empty
 import traceback
 from relay_node.RelayClient import RelayClient
 from utilities.Action import Action
@@ -47,7 +48,7 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, eval_to_relay_queue, p
                             _ = p2_shot_queue.get(timeout=GUN_TIMEOUT)
                             print(f"{Colour.GREEN}AI Process received message from P2 Shot Queue{Colour.RESET}", end="\n\n")
                             visibility = 1
-                    except TimeoutError:
+                    except Empty:
                         print(f"{Colour.RED}{message['player_id']} did not get shot{Colour.RESET}", end="\n\n")
                         pass
                 else:
