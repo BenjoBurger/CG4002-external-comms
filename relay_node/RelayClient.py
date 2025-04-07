@@ -102,4 +102,3 @@ class RelayClient:
 
     def close(self):
         self.client.close()
-        print(f"{Colour.CYAN}Relay Client Closed{Colour.RESET}", end="\n\n")
