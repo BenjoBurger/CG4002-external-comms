@@ -68,7 +68,8 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
                     break
     except Exception as e:
         print(f"{Colour.RED}Error in relay server process: {e} {Colour.RESET}", end="\n\n")
-    finally:
+        traceback.print_exc()
+    except KeyboardInterrupt:
         print(f"{Colour.CYAN}Exiting Relay Server Process{Colour.RESET}", end="\n\n")
         if relay_server is not None:
             relay_server.client.close()
@@ -129,11 +130,10 @@ def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, 
                     print(f"{Colour.RED}Error in sending relay server: {e} {Colour.RESET}", end="\n\n")
                     traceback.print_exc()
                     break
-                # finally:
-                #     conn_socket.close()
-                #     print(f"{Colour.CYAN}Connection Sending Relay closed: {client_addr}{Colour.RESET}", end="\n\n")
-                #     break
-    finally:
+    except Exception as e:
+        print(f"{Colour.RED}Error in relay server process: {e} {Colour.RESET}", end="\n\n")
+        traceback.print_exc()
+    except KeyboardInterrupt:
         print(f"{Colour.CYAN}Exiting Relay Server Process{Colour.RESET}", end="\n\n")
         if relay_server is not None:
             relay_server.client.close()
