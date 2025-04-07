@@ -89,7 +89,7 @@ def action_input(beetle_to_relay, sending_client, receiving_client):
         if sending_client.value and receiving_client.value:
             print(f"{Colour.GREEN}Relay Clients Connected{Colour.RESET}", end="\n\n")
             break
-    time.sleep(5)
+    time.sleep(10)
     user_action = [["golf", "shield", "bomb", "badminton", "boxing", "fencing", "golf"],
                 ["golf", "shield", "bomb", "badminton", "boxing", "fencing", "golf"]]
     count = 0

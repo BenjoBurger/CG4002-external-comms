@@ -13,14 +13,14 @@ class EvaluationClient:
     def __init__(self, server_name, server_port):
         self.BLOCK_SIZE = 16
         self.FORMAT = "utf-8"
-        self.timeout = 5
+        self.timeout = 3
         self.SERVER = server_name
         self.PORT = server_port
         self.ADDR = (self.SERVER, self.PORT)
         self.client = socket(AF_INET, SOCK_STREAM)
         self.client.connect(self.ADDR)
         self.send_server("hello")
-        # self.client.settimeout(self.timeout)
+        self.client.settimeout(self.timeout)
         print(f"{Colour.ORANGE}Evaluation Client connected{Colour.RESET}", end="\n\n")
     
     def send_server(self, message):

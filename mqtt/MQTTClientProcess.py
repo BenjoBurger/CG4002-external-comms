@@ -18,7 +18,7 @@ def mqtt_client_process(ai_to_visualiser_queue, eval_to_visualiser_queue, is_mqt
                     message = eval_to_visualiser_queue.get()
                     mqtt_client.send_game_state(message)
         except KeyboardInterrupt:
-            print(f"{Colour.PINK}Exiting MQTT Server Process{Colour.RESET}", end="\n\n")
+            print(f"{Colour.PINK}Exiting MQTT Client Process{Colour.RESET}", end="\n\n")
             mqtt_client.client.disconnect()
             break
         except Exception as e:
