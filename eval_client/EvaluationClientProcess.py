@@ -1,8 +1,12 @@
 import json
+import time
+import queue
 from eval_client.EvaluationClient import EvaluationClient
 from utilities.Action import shield_command, gun_command, reload_command, bomb_command, badminton_command, boxing_command, fencing_command, golf_command, snow_detection
 from eval_client.ClientGameState import ClientGameState
 from utilities.Colour import Colour
+
+ACTION_QUEUE_TIMEOUT = 30
 
 def eval_client_process(server_name, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue, is_relay_client_1_connected, is_relay_client_2_connected, is_ai_client_connected, is_mqtt_client_connected, is_mqtt_server_connected, num_players):
     while True:
@@ -16,46 +20,65 @@ def eval_client_process(server_name, server_port, action_queue, eval_to_visualis
 def handler(eval_client, client_game_state, action_queue, eval_to_visualiser_queue, eval_to_relay_queue, num_players):
     p1_action = None
     p2_action = None if num_players == 2 else "Completed"
+    curr_timeout = ACTION_QUEUE_TIMEOUT
     while True:
         try:
             while True:
-                # Process new action
-                message = action_queue.get()
-                print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
-                if message["player_id"] == 1 and p1_action is not None:
-                    # print(f"{Colour.RED}Player 1 has completed their action{Colour.RESET}", end="\n\n")
-                    continue
-                if message["player_id"] == 2 and p2_action is not None:
-                    # print(f"{Colour.RED}Player 2 has completed their action{Colour.RESET}", end="\n\n")
-                    continue
+                try:
+                    # Process new action
+                    start_time = time.time()
+                    message = action_queue.get(timeout=curr_timeout)
+                    print(f"{Colour.ORANGE}Eval Client received message{Colour.RESET}", end="\n\n")
+                    if message["player_id"] == 1 and p1_action is not None:
+                        # print(f"{Colour.RED}Player 1 has completed their action{Colour.RESET}", end="\n\n")
+                        curr_timeout -= time.time() - start_time
+                        print(f"{Colour.ORANGE}Current timeout: {curr_timeout}{Colour.RESET}", end="\n\n")
+                        if curr_timeout < 0:
+                            raise queue.Empty
+                        continue
+                    if message["player_id"] == 2 and p2_action is not None:
+                        # print(f"{Colour.RED}Player 2 has completed their action{Colour.RESET}", end="\n\n")
+                        curr_timeout -= time.time() - start_time
+                        if curr_timeout < 0:
+                            raise queue.Empty
+                        continue
 
-                # Update game state and send to eval server
-                action_completed = relay_to_eval(message, eval_client, client_game_state)
-                
-                # Check if player actions are completed
-                if action_completed != -1:
-                    # Send game state to visualiser and relay
-                    print(f"{Colour.ORANGE}Sending Game State to Visualiser and Relay{Colour.RESET}", end="\n\n")
-                    eval_to_visualiser_queue.put(client_game_state.get_dict())
-                    data = {
-                        "player_id": message["player_id"],
-                        "game_state": client_game_state.get_dict()
-                    }
-                    eval_to_relay_queue.put(data)
+                    # Update game state and send to eval server
+                    action_completed = relay_to_eval(message, eval_client, client_game_state)
                     
-                    if action_completed == 1:
-                        p1_action = message["action"]
-                    else:
-                        p2_action = message["action"]
-
-                    # Check if both players have completed their actions
-                    if p1_action is not None and p2_action is not None:
-                        p1_action = None
-                        p2_action = None if num_players == 2 else "Completed"
-                        clear_queue(action_queue)
+                    # Check if player actions are completed
+                    if action_completed != -1:
+                        # Send game state to visualiser and relay
+                        print(f"{Colour.ORANGE}Sending Game State to Visualiser and Relay{Colour.RESET}", end="\n\n")
+                        eval_to_visualiser_queue.put(client_game_state.get_dict())
+                        data = {
+                            "player_id": message["player_id"],
+                            "game_state": client_game_state.get_dict()
+                        }
+                        eval_to_relay_queue.put(data)
                         
+                        if action_completed == 1:
+                            p1_action = message["action"]
+                        else:
+                            p2_action = message["action"]
+
+                        # Check if both players have completed their actions
+                        if p1_action is not None and p2_action is not None:
+                            if message["action"] == "logout":
+                                print(f"{Colour.ORANGE}Both players have logged out{Colour.RESET}", end="\n\n")
+                                eval_client.client.close()
+                            p1_action = None
+                            p2_action = None if num_players == 2 else "Completed"
+                            clear_queue(action_queue)
+                            curr_timeout = ACTION_QUEUE_TIMEOUT
+                except queue.Empty:
+                    print(f"{Colour.ORANGE}No action received within {ACTION_QUEUE_TIMEOUT} seconds{Colour.RESET}", end="\n\n")
+                    p1_action = None
+                    p2_action = None if num_players == 2 else "Completed"
+                    curr_timeout = ACTION_QUEUE_TIMEOUT
+                    continue
         except TimeoutError:
-            print(f"{Colour.RED}eval_client_process: No response received within {eval_client.timeout} seconds{Colour.RESET}", end="\n\n")
+            print(f"{Colour.ORANGE}eval_client_process: No response received within {eval_client.timeout} seconds{Colour.RESET}", end="\n\n")
             continue
         except KeyboardInterrupt:
             print(f"{Colour.ORANGE}Exiting Eval Client Process{Colour.RESET}", end="\n\n")
@@ -92,9 +115,7 @@ def relay_to_eval(packet, eval_client, client_game_state):
         data = eval_client.recv_message() # receive game state from eval server
         # print(f"{Colour.ORANGE}Data received from Eval Server{Colour.RESET}", end="\n\n")
         client_game_state.update_game_state(json.loads(data))
-        if logout:
-            print(f"{Colour.ORANGE}Logout action{Colour.RESET}", end="\n\n")
-            eval_client.client.close()
+
         return curr_player_id
     except Exception as e:
         print(f"{Colour.RED}Error in relay_to_eval: {e}{Colour.RESET}", end="\n\n")
