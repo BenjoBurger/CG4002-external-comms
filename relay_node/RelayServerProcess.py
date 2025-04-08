@@ -4,20 +4,16 @@ from relay_node.RelayServer import RelayServer
 import json
 from utilities.Colour import Colour
 
-SERVER_PORT = 8000
-P1_ACTION_DONE = False
-P2_ACTION_DONE = False
+RECV_PORT = 8000
 
-def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, num_players):
-    global P2_ACTION_DONE
-    P2_ACTION_DONE = False if num_players == 2 else True
-    if server_port == SERVER_PORT:
-        recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected)
+def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, num_players, is_p1_action_done, is_p2_action_done):
+    if server_port == RECV_PORT:
+        recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done)
     else:
-        send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, num_players)
+        send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, num_players, is_p1_action_done, is_p2_action_done)
 
-def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected):
-    # relay_server = None
+def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done):
+    relay_server = None
     try:
         while True:
             # Create a relay server
@@ -47,10 +43,11 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
                     print(f"{Colour.CYAN}Received message from Relay Client{Colour.RESET}", end="\n\n")
                     # send message to ai client
                     message = json.loads(data)
-                    if P1_ACTION_DONE is True and message["player_id"] == 1:
+                    print(f"{Colour.CYAN}P1 Action: {is_p1_action_done.value}{Colour.RESET}", end="\n\n")
+                    if is_p1_action_done.value and message["player_id"] == 1:
                         print(f"{Colour.RED}P1 already performed action{Colour.RESET}", end="\n\n")
                         continue
-                    if P2_ACTION_DONE is True and message["player_id"] == 2:
+                    if is_p2_action_done.value and message["player_id"] == 2:
                         print(f"{Colour.RED}P2 already performed action{Colour.RESET}", end="\n\n")
                         continue
                     
@@ -75,7 +72,7 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
             relay_server.client.close()
             print(f"{Colour.CYAN}Relay Server {server_port} Closed{Colour.RESET}", end="\n\n")
         
-def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, num_players):
+def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, num_players, p1_action_done, p2_action_done):
     relay_server = None
     try:
         # Create a relay server
@@ -111,16 +108,7 @@ def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, 
                             print(f"{Colour.CYAN}Logout action{Colour.RESET}", end="\n\n")
                             conn_socket.close()
                         else:
-                            if message["player_id"] == 1:
-                                global P1_ACTION_DONE
-                                P1_ACTION_DONE = True
-                            elif message["player_id"] == 2:
-                                global P2_ACTION_DONE
-                                P2_ACTION_DONE = True
-                            if P1_ACTION_DONE is True and P2_ACTION_DONE is True:
-                                print(f"{Colour.CYAN}Both players have completed their actions{Colour.RESET}", end="\n\n")
-                                P1_ACTION_DONE = False
-                                P2_ACTION_DONE = False if num_players == 2 else True
+                            # Send game state to relay client   
                             relay_server.send_message(json.dumps(game_state), conn_socket)
                         
                 except queue.Empty:

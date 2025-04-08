@@ -11,7 +11,7 @@ from mqtt.MQTTClient import MQTTClient
 client = MQTTClient()
 while True:
     try:
-        for i in [1, 2]:
+        for i in [1]:
             message = input("Enter message: ")
             data = {
                 "player_id": i,

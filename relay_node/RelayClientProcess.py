@@ -89,43 +89,39 @@ def action_input(beetle_to_relay, sending_client, receiving_client):
         if sending_client.value and receiving_client.value:
             print(f"{Colour.GREEN}Relay Clients Connected{Colour.RESET}", end="\n\n")
             break
-    time.sleep(5)
-    user_action = [["shoot", "shot", "bomb", "badminton", "boxing", "fencing", "golf"],
-                ["golf", "shoot", "bomb", "badminton", "boxing", "fencing", "golf"]]
+    time.sleep(10)
+    user_action = [["golf", "shield", "bomb", "badminton", "boxing", "fencing", "golf"],
+                ["golf", "shield", "bomb", "badminton", "boxing", "fencing", "golf"]]
     count = 0
     while True:
-        data = {
-                "player_id": 1,
-                "gun_fired": False,
-                "IR_Sensor": 0,
-                "imu_data": "badminton",
-            }
+        # data = {
+        #         "player_id": 1,
+        #         "gun_fired": False,
+        #         "IR_Sensor": 0,
+        #         "imu_data": "badminton",
+        #     }
             # print("user_action: ", user_action[j-1][i])
             # if user_action[j-1][i] == "shoot":
             #     data["gun_fired"] = True
             # elif user_action[j-1][i] == "shot":
             #     data["IR_Sensor"] = 1
-        if count == 22:
-            data["imu_data"] = "logout"
-        beetle_to_relay.put(data)
-        time.sleep(5)
-        count += 1
-        if count == 23:
-            break
-        # for i in range(len(user_action[0])):
-        #     for j in [1]:
-        #         data = {
-        #             "player_id": j,
-        #             "gun_fired": False,
-        #             "IR_Sensor": 0,
-        #             "imu_data": "badminton",
-        #         }
-        #         print("user_action: ", user_action[j-1][i])
-        #         if user_action[j-1][i] == "shoot":
-        #             data["gun_fired"] = True
-        #         elif user_action[j-1][i] == "shot":
-        #             data["IR_Sensor"] = 1
-        #     time.sleep(1)
+        # beetle_to_relay.put(data)
+        # time.sleep(5)
+        for i in range(len(user_action[0])):
+            for j in [1]:
+                data = {
+                    "player_id": j,
+                    "gun_fired": False,
+                    "IR_Sensor": 0,
+                    "imu_data": user_action[j-1][i],
+                }
+                print(f"player {j}: {user_action[j-1][i]}")
+                if user_action[j-1][i] == "shoot":
+                    data["gun_fired"] = True
+                elif user_action[j-1][i] == "shot":
+                    data["IR_Sensor"] = 1
+                beetle_to_relay.put(data)
+            time.sleep(5)
 
 if __name__ == "__main__":
     try:
