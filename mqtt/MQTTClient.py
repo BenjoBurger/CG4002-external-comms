@@ -35,7 +35,7 @@ class MQTTClient:
             }
             self.send_mqtt_message(message)
         except Exception:
-            print(f"{Colour.RED}Caught an Exception:{Colour.RESET}")
+            print(f"{Colour.RED}Error in send_action{Colour.RESET}")
             traceback.print_exc()
     
     def send_game_state(self, game_state):
@@ -46,7 +46,7 @@ class MQTTClient:
             }
             self.send_mqtt_message(message)
         except Exception:
-            print(f"{Colour.RED}Caught an Exception:{Colour.RESET}")
+            print(f"{Colour.RED}Error in send_game_state{Colour.RESET}")
             traceback.print_exc()
 
     def send_mqtt_message(self, message):
@@ -57,6 +57,3 @@ class MQTTClient:
         #     print(f"{Colour.PINK}Sending Message to visualiser `{message}` to topic `{MQTT_TOPIC}`{Colour.RESET}", end="\n\n")
         # else:
         #     print(f"{Colour.RED}Failed to send message to topic {MQTT_TOPIC}{Colour.RESET}")
-            
-    def message_handling(self, client, userdata, message):
-        print(f"{Colour.PINK}MQTT Client Received Message '{message.topic}: {message.payload.decode()}'{Colour.RESET}", end="\n\n")

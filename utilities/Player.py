@@ -38,10 +38,18 @@ class Player:
         self.num_shield  = data['shields']
 
     def shoot(self, opponent, visible):
-        if self.num_bullets > 0:
+        while True:
+            # check the ammo
+            if self.num_bullets <= 0:
+                break
             self.num_bullets -= 1
-            if visible:
-                opponent.take_damage(self.hp_bullet)
+
+            # check if the opponent is visible
+            if not visible:
+                break
+
+            opponent.take_damage(self.hp_bullet)
+            break
 
     def reload(self):
         if self.num_bullets <= 0:
@@ -67,6 +75,32 @@ class Player:
         if visible:
             opponent.take_damage(self.hp_bomb)
 
+    def shield(self):
+        while True:
+            if self.num_shield <= 0:
+                # check the number of shields available
+                break
+            elif self.hp_shield > 0:
+                # check if shield is already active
+                break
+            self.hp_shield = self.max_shield_health
+            self.num_shield -= 1
+
+    def bomb(self, opponent, visible):
+        while True:
+            # check the ammo
+            if self.num_bombs <= 0:
+                break
+            self.num_bombs -= 1
+
+            # check if the opponent is visible
+            if not visible:
+                # this bomb will not start a rain/snow and hence has no effect with respect to gameplay
+                break
+
+            opponent.take_damage(self.hp_bomb)
+            break
+
     def take_damage(self, damage):
         # use the shield to protect the player
         if self.hp_shield > 0:
@@ -88,19 +122,3 @@ class Player:
             self.num_bombs      = self.max_bombs
             self.hp_shield      = 0
             self.num_shield     = self.max_shields
-
-    def shield(self):
-        if self.num_shield <= 0:
-            # check the number of shields available
-            return
-        elif self.hp_shield > 0:
-            # check if shield is already active
-            return
-        self.hp_shield = self.max_shield_health
-        self.num_shield -= 1
-
-    def bomb(self, opponent, visible):
-        if self.num_bombs > 0:
-            self.num_bombs -= 1
-            if visible:
-                opponent.take_damage(self.hp_bomb)

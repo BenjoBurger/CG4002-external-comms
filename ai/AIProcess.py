@@ -64,14 +64,14 @@ def ai_process(relay_to_ai_queue, ai_to_visualiser_queue, eval_to_relay_queue, p
                     except Exception as e:
                         print(f"{Colour.RED}Error in receiving message from AI Server: {e}{Colour.RESET}", end="\n\n")
                         continue
-                print(f"{Colour.GREEN}Current Action: {curr_action}{Colour.RESET}", end="\n\n")
+                print(f"{Colour.GREEN}Player {message['player_id']} Current Action: {curr_action}{Colour.RESET}", end="\n\n")
                 # Process the logout action
                 if curr_action == "logout":
                     if message["player_id"] == 1:
                         P1_LOGOUT_COUNT += 1
                     if message["player_id"] == 2:
                         P2_LOGOUT_COUNT += 1
-                    if P1_LOGOUT_COUNT == 1 and P2_LOGOUT_COUNT == 1:
+                    if P1_LOGOUT_COUNT > 0 and P2_LOGOUT_COUNT > 0:
                         p1_visualiser_data = {
                             "player_id": 1,
                             "action": curr_action

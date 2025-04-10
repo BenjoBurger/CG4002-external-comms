@@ -6,13 +6,13 @@ from utilities.Colour import Colour
 
 RECV_PORT = 8000
 
-def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, num_players, is_p1_action_done, is_p2_action_done):
+def relay_server_process(server_port, relay_to_ai_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done, is_free_play):
     if server_port == RECV_PORT:
-        recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done)
+        recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done, is_free_play)
     else:
-        send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, num_players, is_p1_action_done, is_p2_action_done)
+        send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected)
 
-def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done):
+def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queue, is_relay_client_connected, is_p1_action_done, is_p2_action_done, is_free_play):
     relay_server = None
     try:
         while True:
@@ -43,13 +43,13 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
                     print(f"{Colour.CYAN}Received message from Relay Client{Colour.RESET}", end="\n\n")
                     # send message to ai client
                     message = json.loads(data)
-                    print(f"{Colour.CYAN}P1 Action: {is_p1_action_done.value}{Colour.RESET}", end="\n\n")
-                    if is_p1_action_done.value and message["player_id"] == 1:
-                        print(f"{Colour.RED}P1 already performed action{Colour.RESET}", end="\n\n")
-                        continue
-                    if is_p2_action_done.value and message["player_id"] == 2:
-                        print(f"{Colour.RED}P2 already performed action{Colour.RESET}", end="\n\n")
-                        continue
+                    if not is_free_play:
+                        if is_p1_action_done.value and message["player_id"] == 1:
+                            print(f"{Colour.RED}P1 already performed action{Colour.RESET}", end="\n\n")
+                            continue
+                        if is_p2_action_done.value and message["player_id"] == 2:
+                            print(f"{Colour.RED}P2 already performed action{Colour.RESET}", end="\n\n")
+                            continue
                     
                     if message["IR_Sensor"] == 1:
                         if message["player_id"] == 1:
@@ -72,7 +72,7 @@ def recv_from_client(server_port, relay_to_ai_queue, p1_shot_queue, p2_shot_queu
             relay_server.client.close()
             print(f"{Colour.CYAN}Relay Server {server_port} Closed{Colour.RESET}", end="\n\n")
         
-def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, num_players, p1_action_done, p2_action_done):
+def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected):
     relay_server = None
     try:
         # Create a relay server
@@ -99,10 +99,10 @@ def send_to_client(server_port, eval_to_relay_queue, is_relay_client_connected, 
             while relay_server.is_socket_connected(conn_socket):
                 try:
                     # Receive game state from eval client
-                    message = eval_to_relay_queue.get(block=False, timeout=0.1)
+                    game_state = eval_to_relay_queue.get(block=False, timeout=0.1)
                     # print(f"{Colour.CYAN}Received Game State from Eval Client{Colour.RESET}", end="\n\n")
-                    if message is not None:
-                        game_state = message["game_state"]
+                    if game_state is not None:
+                        # game_state = message["game_state"]
                         # print(f"{Colour.CYAN}Sending Game State to Relay Client{Colour.RESET}", end="\n\n")
                         if game_state["p1"] == "logout" and game_state["p2"] == "logout":
                             print(f"{Colour.CYAN}Logout action{Colour.RESET}", end="\n\n")
