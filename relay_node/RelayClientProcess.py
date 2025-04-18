@@ -90,8 +90,8 @@ def action_input(beetle_to_relay, sending_client, receiving_client):
             print(f"{Colour.GREEN}Relay Clients Connected{Colour.RESET}", end="\n\n")
             break
     time.sleep(10)
-    user_action = [["golf", "shield", "bomb", "badminton", "boxing", "fencing", "golf"],
-                ["golf", "shield", "bomb", "badminton", "boxing", "fencing", "golf"]]
+    user_action =   [["shield", "badminton", "boxing", "fencing", "golf"],
+                    ["shield", "badminton", "boxing", "fencing", "golf"]]
     count = 0
     while True:
         # data = {
@@ -108,7 +108,7 @@ def action_input(beetle_to_relay, sending_client, receiving_client):
         # beetle_to_relay.put(data)
         # time.sleep(5)
         for i in range(len(user_action[0])):
-            for j in [1]:
+            for j in [1, 2]:
                 data = {
                     "player_id": j,
                     "gun_fired": False,

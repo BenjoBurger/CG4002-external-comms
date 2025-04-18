@@ -14,8 +14,13 @@ AI_PORT = 9010
 SERVER_ADDR = "localhost"
 
 def main():
-    server_port = int(input("Enter the server port: "))
-    num_players = int(input("Enter the number of players: "))
+    is_free_play = input("Is this free play mode? (y/n): ").strip().lower() == 'y'
+    server_port = None
+    num_players = None
+    if not is_free_play:
+        server_port = int(input("Enter the server port: "))
+        num_players = int(input("Enter the number of players: "))
+    
     
     try:
         # Create queues
@@ -39,12 +44,12 @@ def main():
         is_p2_action_done = Value('b', False)
 
         # Create threads
-        from_relay_client_thread = Process(target=relay_server_process, args=(RECV_PORT, relay_to_ai_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_relay_client_1_connected, num_players, is_p1_action_done, is_p2_action_done))
-        to_relay_client_thread = Process(target=relay_server_process, args=(SEND_PORT, relay_to_ai_queue, eval_to_relay_queue, None, None, is_relay_client_2_connected, num_players, is_p1_action_done, is_p2_action_done))
+        from_relay_client_thread = Process(target=relay_server_process, args=(RECV_PORT, relay_to_ai_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_relay_client_1_connected, is_p1_action_done, is_p2_action_done, is_free_play))
+        to_relay_client_thread = Process(target=relay_server_process, args=(SEND_PORT, relay_to_ai_queue, eval_to_relay_queue, None, None, is_relay_client_2_connected, is_p1_action_done, is_p2_action_done, is_free_play))
         ai_thread = Process(target=ai_process, args=(relay_to_ai_queue, ai_to_visualiser_queue, eval_to_relay_queue, p1_shot_queue, p2_shot_queue, is_ai_client_connected))
         to_visualiser_thread = Process(target=mqtt_client_process, args=(ai_to_visualiser_queue, eval_to_visualiser_queue, is_mqtt_client_connected))
         from_visualiser_thread = Process(target=mqtt_server_process, args=(action_queue, is_mqtt_server_connected))
-        eval_thread = Process(target=eval_client_process, args=(SERVER_ADDR, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue, is_relay_client_1_connected, is_relay_client_2_connected, is_ai_client_connected, is_mqtt_client_connected, is_mqtt_server_connected, num_players, is_p1_action_done, is_p2_action_done))
+        eval_thread = Process(target=eval_client_process, args=(SERVER_ADDR, server_port, action_queue, eval_to_visualiser_queue, eval_to_relay_queue, is_relay_client_1_connected, is_relay_client_2_connected, is_ai_client_connected, is_mqtt_client_connected, is_mqtt_server_connected, num_players, is_p1_action_done, is_p2_action_done, is_free_play))
 
         # Start threads
         from_relay_client_thread.start()
