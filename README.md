@@ -36,7 +36,7 @@
    ```
    localhost:9090
    ```
-2. Locate `ai_main_process.py` and run the **AI server**.
+2. Locate `RUN_THIS.py` and run the **AI server**.
 
 ## 6. Run the Main Code
 
